@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { removeChildFromStore } from "../route";
+import { removeChildFromStore } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
 
