@@ -114,10 +114,12 @@ function AlertListComponent({ highRiskList = [], loading }: AlertListProps) {
         )}
       </CardContent>
 
-      {/* Fullscreen Backdrop AI Recommendation Modal */}
+      {/* Clean Floating Card AI Recommendation Modal (No partial dark overlay) */}
       {selectedChild && (
-        <div className="fixed inset-0 z-[999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-card rounded-2xl max-w-lg w-full p-5 sm:p-6 shadow-2xl border border-border relative animate-in zoom-in-95 duration-150">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0" onClick={() => setSelectedChild(null)} />
+
+          <div className="bg-card rounded-2xl max-w-lg w-full p-5 sm:p-6 shadow-2xl border border-border relative z-10 animate-in zoom-in-95 duration-150">
             <button
               onClick={() => setSelectedChild(null)}
               className="absolute top-4 right-4 p-2 text-muted-foreground hover:text-foreground rounded-full hover:bg-muted"

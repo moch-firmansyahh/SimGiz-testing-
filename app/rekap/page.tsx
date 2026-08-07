@@ -242,10 +242,13 @@ export default function RekapPage() {
         </CardContent>
       </Card>
 
-      {/* Fullscreen Backdrop Detail Modal */}
+      {/* Clean Floating Card Detail Modal (No partial dark overlay) */}
       {selectedChild && (
-        <div className="fixed inset-0 z-[999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-card rounded-2xl max-w-md w-full p-6 shadow-2xl border border-border relative animate-in zoom-in-95">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          {/* Backdrop dismiss trigger */}
+          <div className="absolute inset-0" onClick={() => setSelectedChild(null)} />
+          
+          <div className="bg-card rounded-2xl max-w-md w-full p-6 shadow-2xl border border-border relative z-10 animate-in zoom-in-95">
             <button
               onClick={() => setSelectedChild(null)}
               className="absolute top-4 right-4 p-2 text-muted-foreground hover:text-foreground rounded-full hover:bg-muted"
@@ -275,10 +278,11 @@ export default function RekapPage() {
         </div>
       )}
 
-      {/* Fullscreen Backdrop Delete Confirmation Modal */}
+      {/* Clean Floating Card Delete Confirmation Modal */}
       {deleteTarget && (
-        <div className="fixed inset-0 z-[999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-card rounded-2xl max-w-sm w-full p-5 shadow-2xl border border-border space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0" onClick={() => setDeleteTarget(null)} />
+          <div className="bg-card rounded-2xl max-w-sm w-full p-5 shadow-2xl border border-border space-y-4 relative z-10">
             <div className="flex items-center gap-3">
               <div className="p-2.5 rounded-xl bg-rose-100 text-rose-700">
                 <AlertTriangle className="w-5 h-5" />
