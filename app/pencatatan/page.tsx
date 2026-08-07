@@ -10,10 +10,12 @@ import {
   Scale, 
   Ruler, 
   Save,
-  Loader2
+  Loader2,
+  BookOpen
 } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { WhoRulesModal } from "@/components/ui/WhoRulesModal";
 
 export default function PencatatanPage() {
   const [formData, setFormData] = useState({
@@ -38,6 +40,7 @@ export default function PencatatanPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [showWhoRules, setShowWhoRules] = useState(false);
 
   const handleCalculate = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -130,6 +133,8 @@ export default function PencatatanPage() {
 
   return (
     <div className="space-y-6">
+      <WhoRulesModal isOpen={showWhoRules} onClose={() => setShowWhoRules(false)} />
+
       {savedSuccess && (
         <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 flex items-center gap-3 animate-in fade-in">
           <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
@@ -147,7 +152,7 @@ export default function PencatatanPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <Card className="lg:col-span-2">
-          <CardHeader>
+          <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="flex items-center gap-2.5">
               <div className="p-2.5 rounded-xl bg-primary/10 text-primary">
                 <UserPlus className="w-5 h-5" />
@@ -157,6 +162,15 @@ export default function PencatatanPage() {
                 <CardDescription>FR-02 & FR-03: Simpan pengukuran & kalkulasi Z-score WHO</CardDescription>
               </div>
             </div>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setShowWhoRules(true)}
+              className="gap-2 text-xs border-primary/30 text-primary hover:bg-primary/10"
+            >
+              <BookOpen className="w-4 h-4" /> Rumus & Aturan WHO
+            </Button>
           </CardHeader>
 
           <CardContent>

@@ -12,12 +12,14 @@ import {
   Trash2,
   ChevronLeft,
   ChevronRight,
-  AlertTriangle
+  AlertTriangle,
+  BookOpen
 } from "lucide-react";
 import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { WhoRulesModal } from "@/components/ui/WhoRulesModal";
 import { ChildRecord, PaginationMeta } from "@/lib/types";
 
 export default function RekapPage() {
@@ -35,6 +37,7 @@ export default function RekapPage() {
   const [deleteTarget, setDeleteTarget] = useState<ChildRecord | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [userNotification, setUserNotification] = useState<string | null>(null);
+  const [showWhoRules, setShowWhoRules] = useState(false);
 
   const fetchChildren = async (page = 1) => {
     setLoading(true);
@@ -91,6 +94,8 @@ export default function RekapPage() {
         </div>
       )}
 
+      <WhoRulesModal isOpen={showWhoRules} onClose={() => setShowWhoRules(false)} />
+
       <Card>
         <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
@@ -102,11 +107,21 @@ export default function RekapPage() {
               <CardDescription>FR-05 & FR-06: Daftar seluruh balita terdaftar dan status risiko WHO</CardDescription>
             </div>
           </div>
-          <Link href="/export">
-            <Button variant="emerald" size="sm" className="gap-2 font-bold shadow-sm">
-              <Printer className="w-4 h-4" /> Cetak Laporan
+          <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowWhoRules(true)}
+              className="gap-2 text-xs border-primary/30 text-primary hover:bg-primary/10"
+            >
+              <BookOpen className="w-4 h-4" /> Rumus & Aturan WHO
             </Button>
-          </Link>
+            <Link href="/export">
+              <Button variant="emerald" size="sm" className="gap-2 font-bold shadow-sm">
+                <Printer className="w-4 h-4" /> Cetak Laporan
+              </Button>
+            </Link>
+          </div>
         </CardHeader>
 
         <CardContent className="space-y-4">
