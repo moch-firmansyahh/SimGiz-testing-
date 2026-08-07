@@ -9,7 +9,6 @@ import {
   CheckCircle2, 
   Scale, 
   Ruler, 
-  User, 
   Save,
   Loader2
 } from "lucide-react";
@@ -135,7 +134,7 @@ export default function PencatatanPage() {
         <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 flex items-center gap-3 animate-in fade-in">
           <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
           <span className="text-xs font-bold">
-            Data balita & penimbangan berhasil tersimpan langsung ke Database Supabase!
+            Data balita & penimbangan berhasil tersimpan!
           </span>
         </div>
       )}
@@ -155,7 +154,7 @@ export default function PencatatanPage() {
               </div>
               <div>
                 <CardTitle>Form Input Pengukuran Balita</CardTitle>
-                <CardDescription>FR-02 & FR-03: Simpan pengukuran ke Supabase & kalkulasi Z-score WHO</CardDescription>
+                <CardDescription>FR-02 & FR-03: Simpan pengukuran & kalkulasi Z-score WHO</CardDescription>
               </div>
             </div>
           </CardHeader>
@@ -260,11 +259,11 @@ export default function PencatatanPage() {
                 <Button type="submit" variant="emerald" disabled={isSaving} className="flex-1 gap-2">
                   {isSaving ? (
                     <>
-                      <Loader2 className="w-4 h-4 animate-spin" /> Menyimpan ke Supabase...
+                      <Loader2 className="w-4 h-4 animate-spin" /> Menyimpan...
                     </>
                   ) : (
                     <>
-                      <Save className="w-4 h-4" /> Simpan ke Supabase
+                      <Save className="w-4 h-4" /> Save
                     </>
                   )}
                 </Button>
