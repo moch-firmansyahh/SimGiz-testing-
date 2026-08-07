@@ -673,3 +673,17 @@ export function getDynamicSummary() {
     persentaseNormal,
   };
 }
+
+export function getChartData() {
+  const normal = globalChildrenStore.filter((c) => c.statusGizi === "Normal").length;
+  const giziKurang = globalChildrenStore.filter((c) => c.statusGizi === "Gizi Kurang").length;
+  const giziBuruk = globalChildrenStore.filter((c) => c.statusGizi === "Gizi Buruk").length;
+  const stunting = globalChildrenStore.filter((c) => c.statusGizi === "Stunting").length;
+
+  return [
+    { kategori: "Normal", jumlah: normal, fill: "#10b981" },
+    { kategori: "Gizi Kurang", jumlah: giziKurang, fill: "#f59e0b" },
+    { kategori: "Gizi Buruk", jumlah: giziBuruk, fill: "#ef4444" },
+    { kategori: "Stunting", jumlah: stunting, fill: "#e11d48" },
+  ];
+}

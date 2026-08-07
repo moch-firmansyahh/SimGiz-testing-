@@ -12,6 +12,7 @@ import { SummaryMetric, ChildRecord } from "@/lib/types";
 export default function DashboardPage() {
   const [metrics, setMetrics] = useState<SummaryMetric | null>(null);
   const [highRiskList, setHighRiskList] = useState<ChildRecord[]>([]);
+  const [chartData, setChartData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   const currentDate = new Date().toLocaleDateString("id-ID", {
@@ -28,6 +29,9 @@ export default function DashboardPage() {
       if (data.success) {
         setMetrics(data.summary);
         setHighRiskList(data.highRiskList || []);
+        if (data.chartData) {
+          setChartData(data.chartData);
+        }
       }
     } catch (err) {
       console.error("Kendala mengambil data ringkasan:", err);
@@ -86,10 +90,10 @@ export default function DashboardPage() {
         <SummaryCard metrics={metrics} loading={loading} />
       </div>
 
-      {/* Main Grid: Alert List + Trend Chart */}
+      {/* Main Grid: Alert List + Dynamic Trend Chart */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <AlertList highRiskList={highRiskList} loading={loading} />
-        <TrendChart />
+        <TrendChart chartData={chartData} totalAnak={metrics?.totalAnak || 0} loading={loading} />
       </div>
 
       {/* AI Recommendation Feature Showcase Card */}
