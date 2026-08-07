@@ -133,6 +133,32 @@ export default function PencatatanPage() {
     }
   };
 
+  const getCardColorClass = (status: string) => {
+    switch (status) {
+      case "Normal":
+        return {
+          box: "bg-emerald-50 border-emerald-200 text-emerald-950",
+          title: "text-emerald-800",
+        };
+      case "Gizi Kurang":
+        return {
+          box: "bg-amber-50 border-amber-200 text-amber-950",
+          title: "text-amber-800",
+        };
+      case "Stunting":
+      case "Gizi Buruk":
+        return {
+          box: "bg-rose-50 border-rose-200 text-rose-950",
+          title: "text-rose-800",
+        };
+      default:
+        return {
+          box: "bg-primary/10 border-primary/20 text-foreground",
+          title: "text-primary",
+        };
+    }
+  };
+
   return (
     <div className="space-y-6">
       <WhoRulesModal isOpen={showWhoRules} onClose={() => setShowWhoRules(false)} />
@@ -285,7 +311,7 @@ export default function PencatatanPage() {
           </CardContent>
         </Card>
 
-        {/* Live Automatic Z-Score & AI Preview Card */}
+        {/* Live Automatic Z-Score & Dynamic Color AI Preview Card */}
         <Card className="flex flex-col">
           <CardHeader>
             <div className="flex items-center gap-2 text-foreground font-extrabold text-sm">
@@ -297,7 +323,7 @@ export default function PencatatanPage() {
               <div className="space-y-4 animate-in fade-in duration-200">
                 <div className="p-3.5 rounded-xl bg-muted/40 border border-border space-y-2 text-xs">
                   <div className="flex justify-between"><span className="text-muted-foreground">Z-Score BB/U:</span><span className="font-bold">{calcResult.zScoreBB_U} SD</span></div>
-                  <div className="flex justify-between"><span className="text-muted-foreground">Z-Score TB/U:</span><span className="font-bold text-rose-600">{calcResult.zScoreTB_U} SD</span></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground">Z-Score TB/U:</span><span className="font-bold">{calcResult.zScoreTB_U} SD</span></div>
                   <div className="flex justify-between"><span className="text-muted-foreground">Z-Score BB/TB:</span><span className="font-bold">{calcResult.zScoreBB_TB} SD</span></div>
                 </div>
                 <div>
@@ -306,9 +332,11 @@ export default function PencatatanPage() {
                     {calcResult.statusGizi}
                   </span>
                 </div>
-                <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-xs">
-                  <span className="font-bold text-rose-700 block mb-1">Rekomendasi Analisis AI Kritis:</span>
-                  <p className="text-rose-950 font-medium leading-relaxed">{calcResult.rekomendasiAI}</p>
+                <div className={`p-3.5 rounded-xl border text-xs ${getCardColorClass(calcResult.statusGizi).box}`}>
+                  <span className={`font-bold block mb-1 ${getCardColorClass(calcResult.statusGizi).title}`}>
+                    Rekomendasi Analisis AI Medis:
+                  </span>
+                  <p className="font-medium leading-relaxed">{calcResult.rekomendasiAI}</p>
                 </div>
               </div>
             ) : (

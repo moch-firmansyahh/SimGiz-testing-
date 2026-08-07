@@ -86,6 +86,32 @@ export default function RekapPage() {
     }
   };
 
+  const getCardColorClass = (status: string) => {
+    switch (status) {
+      case "Normal":
+        return {
+          box: "bg-emerald-50 border-emerald-200 text-emerald-950",
+          title: "text-emerald-800",
+        };
+      case "Gizi Kurang":
+        return {
+          box: "bg-amber-50 border-amber-200 text-amber-950",
+          title: "text-amber-800",
+        };
+      case "Stunting":
+      case "Gizi Buruk":
+        return {
+          box: "bg-rose-50 border-rose-200 text-rose-950",
+          title: "text-rose-800",
+        };
+      default:
+        return {
+          box: "bg-primary/10 border-primary/20 text-foreground",
+          title: "text-primary",
+        };
+    }
+  };
+
   return (
     <div className="space-y-6">
       {userNotification && (
@@ -277,13 +303,15 @@ export default function RekapPage() {
             <div className="p-3 bg-muted/40 rounded-xl space-y-1.5 text-xs text-foreground mb-4">
               <div className="flex justify-between"><span className="text-muted-foreground">BB / TB:</span><span className="font-bold">{selectedChild.beratBadan} kg / {selectedChild.tinggiBadan} cm</span></div>
               <div className="flex justify-between"><span className="text-muted-foreground">Z-Score BB/U:</span><span className="font-bold">{selectedChild.zScoreBB_U} SD</span></div>
-              <div className="flex justify-between"><span className="text-muted-foreground">Z-Score TB/U:</span><span className="font-bold text-rose-600">{selectedChild.zScoreTB_U} SD</span></div>
+              <div className="flex justify-between"><span className="text-muted-foreground">Z-Score TB/U:</span><span className="font-bold">{selectedChild.zScoreTB_U} SD</span></div>
               <div className="flex justify-between"><span className="text-muted-foreground">Z-Score BB/TB:</span><span className="font-bold">{selectedChild.zScoreBB_TB} SD</span></div>
             </div>
 
-            <div className="p-3.5 rounded-xl bg-primary/10 border border-primary/20 text-xs mb-4">
-              <span className="font-bold text-primary block mb-1">Rekomendasi Intervensi:</span>
-              <p className="text-foreground font-medium leading-relaxed">{selectedChild.rekomendasiAI}</p>
+            <div className={`p-3.5 rounded-xl border text-xs mb-4 ${getCardColorClass(selectedChild.statusGizi).box}`}>
+              <span className={`font-bold block mb-1 ${getCardColorClass(selectedChild.statusGizi).title}`}>
+                Rekomendasi Intervensi:
+              </span>
+              <p className="font-medium leading-relaxed">{selectedChild.rekomendasiAI}</p>
             </div>
 
             <Button onClick={() => setSelectedChild(null)} variant="emerald" className="w-full">
