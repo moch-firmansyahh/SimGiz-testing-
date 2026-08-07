@@ -116,3 +116,20 @@ export function removeChildFromStore(id: string) {
 export function prependChildToStore(child: any) {
   globalChildrenStore.unshift(child);
 }
+
+export function getDynamicSummary() {
+  const totalAnak = globalChildrenStore.length;
+  const anakBerisiko = globalChildrenStore.filter(
+    (c) => c.statusGizi && c.statusGizi !== "Normal"
+  ).length;
+  const anakNormal = totalAnak - anakBerisiko;
+  const persentaseNormal = totalAnak > 0 ? parseFloat(((anakNormal / totalAnak) * 100).toFixed(1)) : 100;
+  const pemeriksaanBulanIni = totalAnak;
+
+  return {
+    totalAnak,
+    anakBerisiko,
+    pemeriksaanBulanIni,
+    persentaseNormal,
+  };
+}
