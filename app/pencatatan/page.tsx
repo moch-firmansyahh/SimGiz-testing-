@@ -62,19 +62,19 @@ export default function PencatatanPage() {
 
     if (zTB < -3.0) {
       status = "Stunting";
-      rekomendasi = `[KRITIS] Indikasi Stunting Berat (Z-Score TB/U ${zTB} SD). Berisiko tinggi terhadap hambatan perkembangan otak permanen. Segera rujukan darurat ke Puskesmas, evaluasi penyakit penyerta (TBC/cacingan), dan terapkan protokol PMT Pemulihan Protein Hewani (2 telur/hari + susu khusus kalori tinggi).`;
+      rekomendasi = `[STANDAR KEMENKES RI & WHO] Indikasi Stunting Berat (Z-Score TB/U ${zTB} SD). Segera rujuk ke Dokter Spesialis Anak/Puskesmas untuk pemindaian penyakit penyerta (TBC/cacingan) & berikan PMT Pemulihan tinggi Protein Hewani (1-2 telur/hari + susu PKMK).`;
     } else if (zBB < -3.0 || zBB_TB < -3.0) {
       status = "Gizi Buruk";
-      rekomendasi = `[KRITIS] Indikasi Gizi Buruk Akut. Potensi komplikasi penurunan kekebalan tubuh dan atrofi otot. Segera lakukan rujukan ke Poli Tumbuh Kembang, berikan terapi nutrisi F-75/F-100 dan pantau kenaikan BB tiap 3 hari.`;
+      rekomendasi = `[STANDAR KEMENKES RI & WHO] Indikasi Gizi Buruk Akut (BB/TB < -3 SD). Lakukan rujukan darurat ke Puskesmas Rawat Inap/TFC untuk Tatalaksana Gizi Buruk 10 Langkah (Fase Stabilisasi Formula F-75 dilanjutkan F-100/RUTF).`;
     } else if (zTB < -2.0) {
       status = "Stunting";
-      rekomendasi = `[KRITIS] Indikasi Stunting Sedang (Z-Score TB/U ${zTB} SD). Perlu perhatian medis ketat sebelum menjadi kronis. Berikan konseling gizi intensif keluarga & wajibkan konsumsi protein hewani harian (ikan, telur, hati ayam).`;
+      rekomendasi = `[STANDAR KEMENKES RI & WHO] Indikasi Stunting Sedang (Z-Score TB/U ${zTB} SD). Berikan konseling nutrisi intensif keluarga & wajibkan konsumsi protein hewani harian (ikan, telur, hati ayam) untuk mencegah komplikasi kognitif.`;
     } else if (zBB < -2.0 || zBB_TB < -2.0) {
       status = "Gizi Kurang";
-      rekomendasi = `[PERINGATAN KLINIS] Indikasi Gizi Kurang. Berisiko jatuh ke gizi buruk dalam 1 bulan tanpa intervensi. Berikan suplemen zink, MPASI kaya zat besi, dan pemantauan penimbangan mingguan di posyandu.`;
+      rekomendasi = `[STANDAR KEMENKES RI & WHO] Indikasi Gizi Kurang (BB/U < -2 SD). Berikan suplemen Zink 10-20 mg/hari selama 14 hari, PMT Pemulihan Berbasis Pangan Lokal tinggi protein hewani, dan penimbangan mingguan.`;
     } else {
       status = "Normal";
-      rekomendasi = `[EVALUASI OPTIMAL] Pertumbuhan fisik balita sesuai kurva standar WHO. Lanjutkan pengawasan tumbuh kembang rutin tiap bulan untuk mencegah kegagalan pertumbuhan (growth faltering) di usia ${usia} bulan.`;
+      rekomendasi = `[STANDAR KEMENKES RI & WHO] Status Gizi Normal. Pertahankan pola makan seimbang berbasis Isi Piringku Balita, ASI Eksklusif/MPASI kaya zat besi, dan penimbangan rutin bulanan di Posyandu.`;
     }
 
     setCalcResult({
@@ -290,7 +290,7 @@ export default function PencatatanPage() {
         <Card className="flex flex-col">
           <CardHeader>
             <div className="flex items-center gap-2 text-foreground font-extrabold text-sm">
-              <Sparkles className="w-4 h-4 text-primary" /> Kalkulator & Analisis AI Kritis
+              <Sparkles className="w-4 h-4 text-primary" /> Analisis Medis AI (WHO & Kemenkes RI)
             </div>
           </CardHeader>
           <CardContent className="flex-1 space-y-4">

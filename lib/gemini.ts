@@ -16,15 +16,24 @@ export async function generateAIRecommendation({
   const apiKey = process.env.GEMINI_API_KEY;
 
   if (apiKey) {
-    const prompt = `Anda adalah Dokter Spesialis Anak & Konsultan Utama Gizi Kemenkes RI. Berikan analisis klinis kritis & instruksi intervensi medis tegas untuk bidan/kader posyandu menangani balita berikut:
+    const prompt = `Anda adalah Dokter Spesialis Anak & Konsultan Utama Gizi Kemenkes RI. Berikan rekomendasi medis klinis yang 100% patuh pada Keputusan Menteri Kesehatan RI No. 2/2020 & Pedoman WHO Management of Malnutrition untuk balita berikut:
 - Nama: ${nama} (${usiaBulan} Bulan)
-- Pengukuran: BB ${beratBadan} kg, TB ${tinggiBadan} cm
-- Indikator WHO: Z-Score TB/U ${zScoreTB_U} SD | Status Gizi: ${statusGizi}
+- Hasil Fisik: BB ${beratBadan} kg, TB ${tinggiBadan} cm
+- Z-Score TB/U: ${zScoreTB_U} SD | Status Gizi: ${statusGizi}
 
-Instruksi Analisis Kritis:
-1. Jika Stunting / Gizi Buruk (Z-Score < -2 SD / < -3 SD): Berikan evaluasi klinis tajam tentang risiko keterlambatan kognitif/perkembangan, serta instruksi langsung rujukan medis ke Puskesmas Rujukan, pemeriksaan penyakit penyerta (tbc/cacingan), dan penambahan protein hewani intensif (2 telur/hari + susu tinggi kalori).
-2. Jika Normal: Berikan arahan krusial pencegahan penurunan kurva tumbuh kembang di usia ${usiaBulan} bulan.
-Tuliskan 2-3 kalimat yang sangat kritis, ilmiah, dan berorientasi pada tindakan medis darurat.`;
+Panduan Klinis Resmi (Kemenkes RI & WHO):
+1. **Jika Stunting (TB/U < -2 SD)**:
+   - Rujukan ke Puskesmas/Spesialis Anak untuk rujukan medis mendeteksi penyakit penyerta/red flags (TBC Paru, ISK, Cacingan).
+   - Resepkan PMT Pemulihan tinggi Protein Hewani (telur 1-2 butir/hari, ikan, susu formula khusus PKMK) guna mencegah hambatan kognitif.
+2. **Jika Gizi Buruk (BB/TB < -3 SD)**:
+   - Terapkan Protokol 10 Langkah Tata Laksana Gizi Buruk: Fase Stabilisasi (Formula F-75) lanjut Fase Transisi (Formula F-100 / RUTF).
+   - Segera rujuk ke Puskesmas Rawat Inap / TFC (Therapeutic Feeding Center).
+3. **Jika Gizi Kurang (BB/U < -2 SD)**:
+   - Berikan PMT Berbasis Pangan Lokal kaya protein hewani & Suplementasi Zink 10-20 mg/hari selama 14 hari.
+4. **Jika Normal (-2 SD s/d +2 SD)**:
+   - Anjurkan konsistensi Isi Piringku Balita & penimbangan bulanan di Posyandu untuk mencegah growth faltering.
+
+Tuliskan dalam 2-3 kalimat medis yang sangat presisi, akurat, dan menuntut tindakan klinis langsung.`;
 
     try {
       const response = await fetch(
@@ -54,13 +63,13 @@ Tuliskan 2-3 kalimat yang sangat kritis, ilmiah, dan berorientasi pada tindakan 
     }
   }
 
-  // Clinical Rule Fallback (Kritis & Spesifik)
+  // Official Kemenkes RI & WHO Clinical Fallbacks
   if (statusGizi === "Stunting") {
-    return `[KRITIS] Indikasi Stunting Berat (Z-Score TB/U ${zScoreTB_U} SD). Berisiko tinggi terhadap hambatan kognitif permanen. Segera rujukan medis darurat ke Puskesmas, evaluasi infeksi penyerta (TBC/ISPA), dan resepkan PMT Pemulihan tinggi protein hewani (2 telur/hari + ikan).`;
+    return `[STANDAR KEMENKES RI & WHO] Terindikasi Stunting (TB/U ${zScoreTB_U} SD). Segera rujuk ke Dokter Spesialis Anak/Puskesmas untuk pemindaian penyakit penyerta (TBC/cacingan) dan berikan PMT Pemulihan tinggi Protein Hewani (1-2 telur/hari + susu PKMK).`;
   } else if (statusGizi === "Gizi Buruk") {
-    return `[KRITIS] Indikasi Gizi Buruk Akut. Potensi komplikasi penurunan sistem imun dan atrofi otot. Wajib rujukan ke Poli Tumbuh Kembang, berikan terapi F-75/F-100 dan pemantauan kenaikan BB secara ketat setiap 3 hari.`;
+    return `[STANDAR KEMENKES RI & WHO] Terindikasi Gizi Buruk Akut. Lakukan rujukan darurat ke Puskesmas Rawat Inap/TFC untuk Tatalaksana Gizi Buruk 10 Langkah (Fase Stabilisasi Formula F-75 dilanjutkan F-100/RUTF).`;
   } else if (statusGizi === "Gizi Kurang") {
-    return `[PERINGATAN KLINIS] Indikasi Gizi Kurang (BB/U di bawah -2 SD). Berisiko jatuh ke gizi buruk dalam 1 bulan jika tidak diintervensi. Berikan suplemen zink, MPASI kaya zat besi & protein hewani lokal secara intensif.`;
+    return `[STANDAR KEMENKES RI & WHO] Terindikasi Gizi Kurang. Berikan suplemen Zink 10-20 mg/hari selama 14 hari, PMT Pemulihan Berbasis Pangan Lokal tinggi protein hewani, dan evaluasi penimbangan mingguan.`;
   }
-  return `[EVALUASI OPTIMAL] Pertumbuhan fisik sesuai kurva WHO. Lanjutkan pengawasan tumbuh kembang rutin tiap bulan untuk mencegah kegagalan pertumbuhan (growth faltering) di usia ${usiaBulan} bulan.`;
+  return `[STANDAR KEMENKES RI & WHO] Status Gizi Normal. Pertahankan pola makan seimbang berbasis Isi Piringku Balita, ASI Eksklusif/MPASI kaya zat besi, dan penimbangan rutin bulanan di Posyandu.`;
 }
