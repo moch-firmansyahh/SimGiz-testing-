@@ -1,0 +1,58 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Petugas {
+  id        String   @id @default(cuid())
+  nama      String   @default("Bidan Sri Wahyuni, S.Tr.Keb")
+  nip       String   @default("19880412 201403 2 004")
+  email     String   @unique
+  password  String
+  posyandu  String   @default("Posyandu Melati 03")
+  kelurahan String   @default("Cilandak Barat, Jakarta Selatan")
+  avatar    String?  @default("https://images.unsplash.com/photo-1594824813566-78a9c2409f7a?auto=format&fit=crop&q=80&w=200")
+  createdAt DateTime @default(now())
+}
+
+model Anak {
+  id                 String        @id @default(cuid())
+  nama               String
+  nik                String        @unique
+  usiaBulan          Int
+  jenisKelamin       String        // "L" atau "P"
+  namaOrangTua       String
+  alamat             String
+  beratBadan         Float
+  tinggiBadan        Float
+  zScoreBB_U         Float
+  zScoreTB_U         Float
+  zScoreBB_TB        Float
+  statusGizi         String        // "Normal", "Gizi Kurang", "Gizi Buruk", "Stunting"
+  tanggalPemeriksaan String
+  risikoLevel        String        @default("Rendah")
+  rekomendasiAI      String
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+  pemeriksaan        Pemeriksaan[]
+}
+
+model Pemeriksaan {
+  id                 String   @id @default(cuid())
+  anakId             String
+  beratBadan         Float
+  tinggiBadan        Float
+  zScoreBB_U         Float
+  zScoreTB_U         Float
+  zScoreBB_TB        Float
+  statusGizi         String
+  rekomendasiAI      String
+  tanggalPemeriksaan String
+  createdAt          DateTime @default(now())
+
+  anak               Anak     @relation(fields: [anakId], references: [id], onDelete: Cascade)
+}
