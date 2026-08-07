@@ -5,7 +5,7 @@ import { generateAIRecommendation } from "@/lib/gemini";
 export const dynamic = "force-dynamic";
 
 // In-Memory store to guarantee newly added records appear at top immediately across requests
-let globalChildrenStore: any[] = [
+export let globalChildrenStore: any[] = [
   {
     id: "anak-1",
     nama: "Muhammad Arfan",
@@ -115,6 +115,10 @@ let globalChildrenStore: any[] = [
     rekomendasiAI: "Kondisi gizi normal. Pertahankan asupan ASI dilanjutkan MPASI kaya gizi.",
   },
 ];
+
+export function removeChildFromStore(id: string) {
+  globalChildrenStore = globalChildrenStore.filter((c) => c.id !== id && c.nik !== id);
+}
 
 export async function GET(request: Request) {
   try {
