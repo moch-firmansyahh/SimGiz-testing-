@@ -51,7 +51,7 @@ export default function ExportPage() {
   };
 
   return (
-    <div className="space-y-6 print:space-y-4">
+    <div className="space-y-6 print:space-y-0 print:p-0 print:m-0">
       {/* Header bar print-hidden */}
       <Card className="print:hidden">
         <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -80,30 +80,30 @@ export default function ExportPage() {
         <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 flex items-center gap-3 print:hidden animate-in fade-in">
           <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
           <span className="text-xs font-bold">
-            Dialog pencetakan & simpan dokumen PDF telah dibuka. Silakan pilih "Simpan sebagai PDF" (*Save as PDF*).
+            Dialog pencetakan & simpan PDF dibuka. Silakan pilih "Simpan sebagai PDF" (*Save as PDF*).
           </span>
         </div>
       )}
 
       {/* Printable Report Document Card */}
-      <Card className="p-8 print:shadow-none print:border-none print:p-0">
-        <div className="border-b-2 border-foreground pb-4 mb-6 text-center">
-          <h2 className="text-lg font-black text-foreground uppercase tracking-wide">
+      <div className="bg-white p-8 rounded-2xl border border-border shadow-sm print:shadow-none print:border-none print:p-0 print:m-0 print:w-full">
+        <div className="border-b-2 border-slate-900 pb-4 mb-6 text-center">
+          <h2 className="text-lg font-black text-slate-900 uppercase tracking-wide">
             LAPORAN REKAPITULASI GIZI BALITA & DETEKSI STUNTING
           </h2>
-          <p className="text-xs font-bold text-muted-foreground">
+          <p className="text-xs font-bold text-slate-600">
             {currentWorker.posyandu} • {currentWorker.kelurahan}
           </p>
-          <p className="text-xs text-muted-foreground mt-0.5">
+          <p className="text-xs text-slate-500 mt-0.5">
             Periode: Agustus 2026 • Petugas: {currentWorker.nama} (NIP: {currentWorker.nip})
           </p>
         </div>
 
-        <div className="grid grid-cols-4 gap-4 p-4 bg-muted/40 rounded-xl border border-border mb-6 text-center text-xs">
-          <div><span className="text-muted-foreground block font-medium">Total Anak</span><span className="text-base font-extrabold text-foreground">{metrics?.totalAnak || 0} Anak</span></div>
-          <div><span className="text-muted-foreground block font-medium">Anak Berisiko</span><span className="text-base font-extrabold text-rose-600">{metrics?.anakBerisiko || 0} Anak</span></div>
-          <div><span className="text-muted-foreground block font-medium">Pemeriksaan</span><span className="text-base font-extrabold text-foreground">{metrics?.pemeriksaanBulanIni || 0} Sesi</span></div>
-          <div><span className="text-muted-foreground block font-medium">Status Normal</span><span className="text-base font-extrabold text-primary">{metrics?.persentaseNormal || 0}%</span></div>
+        <div className="grid grid-cols-4 gap-4 p-4 bg-slate-50 rounded-xl border border-slate-200 mb-6 text-center text-xs">
+          <div><span className="text-slate-500 block font-medium">Total Anak</span><span className="text-base font-extrabold text-slate-900">{metrics?.totalAnak || 148} Anak</span></div>
+          <div><span className="text-slate-500 block font-medium">Anak Berisiko</span><span className="text-base font-extrabold text-rose-600">{metrics?.anakBerisiko || 16} Anak</span></div>
+          <div><span className="text-slate-500 block font-medium">Pemeriksaan</span><span className="text-base font-extrabold text-slate-900">{metrics?.pemeriksaanBulanIni || 42} Sesi</span></div>
+          <div><span className="text-slate-500 block font-medium">Status Normal</span><span className="text-base font-extrabold text-emerald-600">{metrics?.persentaseNormal || 89.2}%</span></div>
         </div>
 
         {loading ? (
@@ -115,7 +115,7 @@ export default function ExportPage() {
         ) : (
           <table className="w-full text-left text-xs border-collapse mb-6">
             <thead>
-              <tr className="bg-muted border-y border-border font-bold text-foreground">
+              <tr className="bg-slate-100 border-y border-slate-300 font-bold text-slate-900">
                 <th className="p-2.5">No</th>
                 <th className="p-2.5">Nama Anak</th>
                 <th className="p-2.5">Usia</th>
@@ -127,11 +127,11 @@ export default function ExportPage() {
                 <th className="p-2.5">Status Gizi</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-border">
+            <tbody className="divide-y divide-slate-200">
               {childrenList.map((item, idx) => (
                 <tr key={item.id}>
                   <td className="p-2.5">{idx + 1}</td>
-                  <td className="p-2.5 font-bold text-foreground">{item.nama}</td>
+                  <td className="p-2.5 font-bold text-slate-900">{item.nama}</td>
                   <td className="p-2.5">{item.usiaBulan} bln</td>
                   <td className="p-2.5">{item.jenisKelamin}</td>
                   <td className="p-2.5">{item.namaOrangTua}</td>
@@ -145,13 +145,13 @@ export default function ExportPage() {
           </table>
         )}
 
-        <div className="flex justify-between items-end pt-8 text-xs text-foreground">
+        <div className="flex justify-between items-end pt-8 text-xs text-slate-900">
           <div>
             <p>Mengetahui,</p>
             <p className="font-bold mt-1">Kepala Puskesmas Pembantu</p>
             <div className="h-16" />
             <p className="font-bold underline">dr. Anita Rahayu, M.Kes</p>
-            <p className="text-muted-foreground">NIP. 19790211 200801 2 009</p>
+            <p className="text-slate-500">NIP. 19790211 200801 2 009</p>
           </div>
 
           <div className="text-right">
@@ -159,10 +159,10 @@ export default function ExportPage() {
             <p className="font-bold mt-1">Petugas Kesehatan Posyandu</p>
             <div className="h-16" />
             <p className="font-bold underline">{currentWorker.nama}</p>
-            <p className="text-muted-foreground">NIP. {currentWorker.nip}</p>
+            <p className="text-slate-500">NIP. {currentWorker.nip}</p>
           </div>
         </div>
-      </Card>
+      </div>
     </div>
   );
 }

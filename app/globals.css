@@ -48,16 +48,22 @@
 }
 
 @media print {
-  body {
+  html, body {
     background: #ffffff !important;
     color: #000000 !important;
+    overflow: visible !important;
+    height: auto !important;
   }
   header, aside, nav, .print\:hidden {
     display: none !important;
   }
-  main {
+  div, main, section {
     margin: 0 !important;
     padding: 0 !important;
+    overflow: visible !important;
+    height: auto !important;
     max-width: 100% !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
   }
 }
