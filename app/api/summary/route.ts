@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getDynamicSummary } from "@/lib/store";
+import { globalChildrenStore, getDynamicSummary } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
 
@@ -10,17 +10,29 @@ export async function GET() {
     let anakBerisiko = 0;
     let pemeriksaanBulanIni = 0;
     let persentaseNormal = 100;
+    let highRiskList: any[] = [];
 
     try {
-      totalAnak = await prisma.anak.count();
-      anakBerisiko = await prisma.anak.count({
-        where: {
-          statusGizi: {
-            in: ["Stunting", "Gizi Buruk", "Gizi Kurang"],
+      [totalAnak, anakBerisiko, pemeriksaanBulanIni, highRiskList] = await Promise.all([
+        prisma.anak.count(),
+        prisma.anak.count({
+          where: {
+            statusGizi: {
+              in: ["Stunting", "Gizi Buruk", "Gizi Kurang"],
+            },
           },
-        },
-      });
-      pemeriksaanBulanIni = await prisma.pemeriksaan.count();
+        }),
+        prisma.pemeriksaan.count(),
+        prisma.anak.findMany({
+          where: {
+            statusGizi: {
+              in: ["Stunting", "Gizi Buruk", "Gizi Kurang"],
+            },
+          },
+          orderBy: { createdAt: "desc" },
+          take: 10,
+        }),
+      ]);
 
       const normalCount = totalAnak - anakBerisiko;
       persentaseNormal =
@@ -29,7 +41,12 @@ export async function GET() {
       console.warn("GET /api/summary DB lookup fallback:", dbErr);
     }
 
-    // Fallback to store dynamic metrics if DB returned zero
+    // Fallback high risk list from global store if DB list was empty
+    const storeHighRisk = globalChildrenStore.filter(
+      (c) => c.statusGizi && c.statusGizi !== "Normal"
+    );
+
+    const finalHighRiskList = highRiskList.length > 0 ? highRiskList : storeHighRisk;
     const storeSummary = getDynamicSummary();
 
     const summary = {
@@ -42,12 +59,18 @@ export async function GET() {
     return NextResponse.json({
       success: true,
       summary,
+      highRiskList: finalHighRiskList,
     });
   } catch (error) {
     console.error("GET /api/summary Error:", error);
+    const storeHighRisk = globalChildrenStore.filter(
+      (c) => c.statusGizi && c.statusGizi !== "Normal"
+    );
+
     return NextResponse.json({
       success: true,
       summary: getDynamicSummary(),
+      highRiskList: storeHighRisk,
     });
   }
 }
