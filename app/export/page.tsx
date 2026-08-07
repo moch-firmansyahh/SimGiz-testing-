@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { currentWorker } from "@/lib/dummy-data";
 import { FileSpreadsheet, Printer, Download, CheckCircle2 } from "lucide-react";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ChildRecord, SummaryMetric } from "@/lib/types";
@@ -12,7 +12,6 @@ export default function ExportPage() {
   const [childrenList, setChildrenList] = useState<ChildRecord[]>([]);
   const [metrics, setMetrics] = useState<SummaryMetric | null>(null);
   const [loading, setLoading] = useState(true);
-  const [downloading, setDownloading] = useState(false);
   const [successMessage, setSuccessMessage] = useState(false);
 
   const fetchData = async () => {
@@ -38,16 +37,17 @@ export default function ExportPage() {
   }, []);
 
   const handlePrint = () => {
-    window.print();
+    if (typeof window !== "undefined") {
+      window.print();
+    }
   };
 
   const handleDownloadPDF = () => {
-    setDownloading(true);
-    setTimeout(() => {
-      setDownloading(false);
-      setSuccessMessage(true);
-      setTimeout(() => setSuccessMessage(false), 4000);
-    }, 1500);
+    setSuccessMessage(true);
+    setTimeout(() => setSuccessMessage(false), 4000);
+    if (typeof window !== "undefined") {
+      window.print();
+    }
   };
 
   return (
@@ -61,7 +61,7 @@ export default function ExportPage() {
             </div>
             <div>
               <CardTitle>Export Laporan Rekapitulasi Gizi</CardTitle>
-              <CardDescription>FR-08: Unduh atau cetak laporan gizi & stunting bulanan Posyandu</CardDescription>
+              <CardDescription>FR-08: Unduh PDF atau cetak laporan gizi & stunting bulanan Posyandu</CardDescription>
             </div>
           </div>
 
@@ -69,9 +69,8 @@ export default function ExportPage() {
             <Button variant="outline" size="sm" onClick={handlePrint} className="gap-2">
               <Printer className="w-4 h-4 text-muted-foreground" /> Cetak Laporan
             </Button>
-            <Button variant="emerald" size="sm" onClick={handleDownloadPDF} disabled={downloading} className="gap-2">
-              <Download className="w-4 h-4" />
-              {downloading ? "Memproses PDF..." : "Unduh PDF"}
+            <Button variant="emerald" size="sm" onClick={handleDownloadPDF} className="gap-2">
+              <Download className="w-4 h-4" /> Unduh PDF
             </Button>
           </div>
         </CardHeader>
@@ -79,9 +78,9 @@ export default function ExportPage() {
 
       {successMessage && (
         <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 flex items-center gap-3 print:hidden animate-in fade-in">
-          <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+          <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
           <span className="text-xs font-bold">
-            Laporan rekapitulasi gizi bulanan berhasil disiapkan!
+            Dialog pencetakan & simpan dokumen PDF telah dibuka. Silakan pilih "Simpan sebagai PDF" (*Save as PDF*).
           </span>
         </div>
       )}
