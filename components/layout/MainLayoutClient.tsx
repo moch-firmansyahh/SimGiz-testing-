@@ -1,14 +1,26 @@
 "use client";
 
-import React, { useState } from "react";
-import { usePathname } from "next/navigation";
+import React, { useState, useEffect } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Navbar } from "@/components/layout/Navbar";
 import { cn } from "@/lib/utils";
 
 export const MainLayoutClient = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
+  const router = useRouter();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
+  useEffect(() => {
+    const isLoginPage = pathname === "/login";
+    const isAuth =
+      typeof window !== "undefined" &&
+      (sessionStorage.getItem("isAuth") || localStorage.getItem("isAuth"));
+
+    if (!isAuth && !isLoginPage) {
+      router.push("/login");
+    }
+  }, [pathname, router]);
 
   const isLoginPage = pathname === "/login";
 
