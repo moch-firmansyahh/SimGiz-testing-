@@ -1,10 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { getStatusBadgeClass } from "@/lib/utils";
 import { 
   UserPlus, 
-  Calculator, 
   Sparkles, 
   CheckCircle2, 
   Scale, 
@@ -42,13 +41,16 @@ export default function PencatatanPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showWhoRules, setShowWhoRules] = useState(false);
 
-  const handleCalculate = (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
+  // Real-time automatic Z-Score WHO & AI Recommendation calculation as soon as BB & TB are entered
+  useEffect(() => {
     const bb = parseFloat(formData.beratBadan);
     const tb = parseFloat(formData.tinggiBadan);
     const usia = parseInt(formData.usiaBulan);
 
-    if (!bb || !tb || isNaN(bb) || isNaN(tb)) return;
+    if (!bb || !tb || isNaN(bb) || isNaN(tb) || bb <= 0 || tb <= 0) {
+      setCalcResult(null);
+      return;
+    }
 
     const medianTB = 75 + (usia * 0.75);
     const medianBB = 3.5 + (usia * 0.35);
@@ -82,9 +84,9 @@ export default function PencatatanPage() {
       zScoreTB_U: zTB,
       zScoreBB_TB: zBB_TB,
       statusGizi: status,
-      rekomendasiAI: rekomendasi
+      rekomendasiAI: rekomendasi,
     });
-  };
+  }, [formData.beratBadan, formData.tinggiBadan, formData.usiaBulan]);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -159,7 +161,7 @@ export default function PencatatanPage() {
               </div>
               <div>
                 <CardTitle>Form Input Pengukuran Balita</CardTitle>
-                <CardDescription>FR-02 & FR-03: Simpan pengukuran & kalkulasi Z-score WHO</CardDescription>
+                <CardDescription>FR-02 & FR-03: Pengukuran otomatis terhitung sesuai standar WHO</CardDescription>
               </div>
             </div>
             <Button
@@ -266,18 +268,15 @@ export default function PencatatanPage() {
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-3 pt-3">
-                <Button type="button" variant="outline" onClick={() => handleCalculate()} className="flex-1 gap-2">
-                  <Calculator className="w-4 h-4 text-primary" /> Kalkulasi Z-Score WHO
-                </Button>
-                <Button type="submit" variant="emerald" disabled={isSaving} className="flex-1 gap-2">
+              <div className="pt-3">
+                <Button type="submit" variant="emerald" disabled={isSaving} className="w-full gap-2 font-bold h-11 text-sm shadow-md">
                   {isSaving ? (
                     <>
-                      <Loader2 className="w-4 h-4 animate-spin" /> Menyimpan...
+                      <Loader2 className="w-4 h-4 animate-spin" /> Menyimpan Data Balita...
                     </>
                   ) : (
                     <>
-                      <Save className="w-4 h-4" /> Save
+                      <Save className="w-4 h-4" /> Save Data Balita & Penimbangan
                     </>
                   )}
                 </Button>
@@ -286,23 +285,23 @@ export default function PencatatanPage() {
           </CardContent>
         </Card>
 
-        {/* Live Z-Score & AI Preview Card */}
+        {/* Live Automatic Z-Score & AI Preview Card */}
         <Card className="flex flex-col">
           <CardHeader>
             <div className="flex items-center gap-2 text-foreground font-extrabold text-sm">
-              <Sparkles className="w-4 h-4 text-primary" /> Analisis Medis AI (WHO & Kemenkes RI)
+              <Sparkles className="w-4 h-4 text-primary animate-pulse" /> Analisis Medis AI Real-Time
             </div>
           </CardHeader>
           <CardContent className="flex-1 space-y-4">
             {calcResult ? (
-              <div className="space-y-4">
+              <div className="space-y-4 animate-in fade-in duration-200">
                 <div className="p-3.5 rounded-xl bg-muted/40 border border-border space-y-2 text-xs">
-                  <div className="flex justify-between"><span className="text-muted-foreground">BB/U:</span><span className="font-bold">{calcResult.zScoreBB_U} SD</span></div>
-                  <div className="flex justify-between"><span className="text-muted-foreground">TB/U:</span><span className="font-bold text-rose-600">{calcResult.zScoreTB_U} SD</span></div>
-                  <div className="flex justify-between"><span className="text-muted-foreground">BB/TB:</span><span className="font-bold">{calcResult.zScoreBB_TB} SD</span></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground">Z-Score BB/U:</span><span className="font-bold">{calcResult.zScoreBB_U} SD</span></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground">Z-Score TB/U:</span><span className="font-bold text-rose-600">{calcResult.zScoreTB_U} SD</span></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground">Z-Score BB/TB:</span><span className="font-bold">{calcResult.zScoreBB_TB} SD</span></div>
                 </div>
                 <div>
-                  <span className="text-xs font-semibold text-muted-foreground block mb-1">Status Gizi:</span>
+                  <span className="text-xs font-semibold text-muted-foreground block mb-1">Status Gizi (Otomatis):</span>
                   <span className={`inline-block px-3 py-1 rounded-md font-extrabold text-xs border ${getStatusBadgeClass(calcResult.statusGizi)}`}>
                     {calcResult.statusGizi}
                   </span>
@@ -314,8 +313,9 @@ export default function PencatatanPage() {
               </div>
             ) : (
               <div className="py-12 text-center text-muted-foreground space-y-2 text-xs">
-                <Calculator className="w-8 h-8 mx-auto stroke-1" />
-                <p>Masukkan Berat & Tinggi badan lalu klik "Kalkulasi Z-Score WHO".</p>
+                <Sparkles className="w-8 h-8 mx-auto stroke-1 text-primary animate-pulse" />
+                <p className="font-semibold">Ketikkan Berat & Tinggi Badan balita.</p>
+                <p className="text-[11px] text-muted-foreground">Kalkulasi Z-score WHO & Analisis Medis AI akan otomatis muncul secara instant di sini.</p>
               </div>
             )}
           </CardContent>
