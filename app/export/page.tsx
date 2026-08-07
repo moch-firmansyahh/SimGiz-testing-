@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { currentWorker } from "@/lib/dummy-data";
-import { FileSpreadsheet, Printer, Download, CheckCircle2, Loader2 } from "lucide-react";
+import { FileSpreadsheet, Printer } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -12,8 +12,6 @@ export default function ExportPage() {
   const [childrenList, setChildrenList] = useState<ChildRecord[]>([]);
   const [metrics, setMetrics] = useState<SummaryMetric | null>(null);
   const [loading, setLoading] = useState(true);
-  const [downloading, setDownloading] = useState(false);
-  const [successMessage, setSuccessMessage] = useState(false);
 
   const fetchData = async () => {
     try {
@@ -35,55 +33,11 @@ export default function ExportPage() {
 
   useEffect(() => {
     fetchData();
-
-    // Dynamically load html2pdf script for instant direct PDF file download
-    if (typeof window !== "undefined" && !(window as any).html2pdf) {
-      const script = document.createElement("script");
-      script.src = "https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js";
-      script.async = true;
-      document.body.appendChild(script);
-    }
   }, []);
 
   const handlePrint = () => {
     if (typeof window !== "undefined") {
       window.print();
-    }
-  };
-
-  const handleDownloadPDF = async () => {
-    setDownloading(true);
-    setSuccessMessage(false);
-
-    try {
-      const element = document.getElementById("printable-report");
-      const html2pdf = (window as any).html2pdf;
-
-      if (element && html2pdf) {
-        const opt = {
-          margin: 8,
-          filename: `Laporan_Rekapitulasi_Gizi_Posyandu_${new Date().toISOString().split("T")[0]}.pdf`,
-          image: { type: "jpeg", quality: 0.98 },
-          html2canvas: { scale: 2, useCORS: true, logging: false },
-          jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-        };
-
-        await html2pdf().set(opt).from(element).save();
-        setSuccessMessage(true);
-        setTimeout(() => setSuccessMessage(false), 5000);
-      } else {
-        // Fallback to print dialog if CDN script loading is delayed
-        if (typeof window !== "undefined") {
-          window.print();
-        }
-      }
-    } catch (err) {
-      console.error("Gagal mengunduh PDF:", err);
-      if (typeof window !== "undefined") {
-        window.print();
-      }
-    } finally {
-      setDownloading(false);
     }
   };
 
@@ -97,46 +51,18 @@ export default function ExportPage() {
               <FileSpreadsheet className="w-5 h-5" />
             </div>
             <div>
-              <CardTitle>Export Laporan Rekapitulasi Gizi</CardTitle>
-              <CardDescription>FR-08: Unduh file PDF resmi atau cetak laporan bulanan Posyandu</CardDescription>
+              <CardTitle>Cetak Laporan Rekapitulasi Gizi</CardTitle>
+              <CardDescription>FR-08: Cetak & simpan PDF laporan gizi bulanan Posyandu</CardDescription>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <Button variant="outline" size="sm" onClick={handlePrint} className="gap-2">
-              <Printer className="w-4 h-4 text-muted-foreground" /> Cetak Laporan
-            </Button>
-            <Button
-              variant="emerald"
-              size="sm"
-              onClick={handleDownloadPDF}
-              disabled={downloading}
-              className="gap-2 font-bold shadow-md"
-            >
-              {downloading ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" /> Mengunduh PDF...
-                </>
-              ) : (
-                <>
-                  <Download className="w-4 h-4" /> Unduh PDF (Direct File)
-                </>
-              )}
-            </Button>
-          </div>
+          <Button variant="emerald" size="sm" onClick={handlePrint} className="gap-2 font-bold shadow-md">
+            <Printer className="w-4 h-4" /> Cetak Laporan
+          </Button>
         </CardHeader>
       </Card>
 
-      {successMessage && (
-        <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 flex items-center gap-3 print:hidden animate-in fade-in">
-          <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
-          <span className="text-xs font-bold">
-            Berkas PDF laporan resmi (`Laporan_Rekapitulasi_Gizi_Posyandu.pdf`) telah berhasil diunduh ke folder Download komputer Anda!
-          </span>
-        </div>
-      )}
-
-      {/* Printable & PDF Export Target Container */}
+      {/* Printable Report Document Container */}
       <div id="printable-report" className="print-document bg-white p-8 rounded-2xl border border-border shadow-sm print:shadow-none print:border-none print:p-0 print:m-0 print:w-full">
         <div className="border-b-2 border-slate-900 pb-4 mb-6 text-center">
           <h2 className="text-lg font-black text-slate-900 uppercase tracking-wide">

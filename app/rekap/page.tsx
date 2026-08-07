@@ -6,7 +6,7 @@ import {
   ClipboardList, 
   Search, 
   Filter, 
-  Download, 
+  Printer, 
   Eye, 
   X,
   Trash2,
@@ -61,20 +61,23 @@ export default function RekapPage() {
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
+    const targetId = deleteTarget.id;
+    const targetNama = deleteTarget.nama;
+
     setIsDeleting(true);
+
+    // INSTANTLY remove from local screen state for 100% immediate UI response
+    setChildrenList((prev) => prev.filter((c) => c.id !== targetId && c.nik !== deleteTarget.nik));
+    setDeleteTarget(null);
+    setUserNotification(`Data ${targetNama} telah berhasil dihapus.`);
+    setTimeout(() => setUserNotification(null), 4000);
+
     try {
-      const res = await fetch(`/api/anak/${deleteTarget.id}`, {
+      await fetch(`/api/anak/${targetId}`, {
         method: "DELETE",
       });
-      const data = await res.json();
-      if (data.success) {
-        setUserNotification(`Data ${deleteTarget.nama} telah berhasil diperbarui.`);
-        setTimeout(() => setUserNotification(null), 4000);
-        setDeleteTarget(null);
-        fetchChildren(pagination.page);
-      }
     } catch (err) {
-      console.error("Kendala menghapus data:", err);
+      console.error("Kendala menghapus data API:", err);
     } finally {
       setIsDeleting(false);
     }
@@ -100,8 +103,8 @@ export default function RekapPage() {
             </div>
           </div>
           <Link href="/export">
-            <Button variant="emerald" size="sm" className="gap-2">
-              <Download className="w-4 h-4" /> Export PDF
+            <Button variant="emerald" size="sm" className="gap-2 font-bold shadow-sm">
+              <Printer className="w-4 h-4" /> Cetak Laporan
             </Button>
           </Link>
         </CardHeader>
@@ -242,12 +245,9 @@ export default function RekapPage() {
         </CardContent>
       </Card>
 
-      {/* Clean Floating Card Detail Modal (No partial dark overlay) */}
+      {/* Blurred Backdrop Detail Modal */}
       {selectedChild && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          {/* Backdrop dismiss trigger */}
-          <div className="absolute inset-0" onClick={() => setSelectedChild(null)} />
-          
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200">
           <div className="bg-card rounded-2xl max-w-md w-full p-6 shadow-2xl border border-border relative z-10 animate-in zoom-in-95">
             <button
               onClick={() => setSelectedChild(null)}
@@ -278,10 +278,9 @@ export default function RekapPage() {
         </div>
       )}
 
-      {/* Clean Floating Card Delete Confirmation Modal */}
+      {/* Blurred Backdrop Delete Confirmation Modal */}
       {deleteTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0" onClick={() => setDeleteTarget(null)} />
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200">
           <div className="bg-card rounded-2xl max-w-sm w-full p-5 shadow-2xl border border-border space-y-4 relative z-10">
             <div className="flex items-center gap-3">
               <div className="p-2.5 rounded-xl bg-rose-100 text-rose-700">

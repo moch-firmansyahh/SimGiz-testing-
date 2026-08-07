@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { currentWorker } from "@/lib/dummy-data";
-import { Menu, LogOut, Building2 } from "lucide-react";
+import { Menu, LogOut, Building2, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { usePathname, useRouter } from "next/navigation";
 
@@ -44,14 +44,13 @@ export const Navbar = ({ toggleSidebar }: NavbarProps) => {
       case "/pencatatan": return "Pencatatan Data Anak";
       case "/rekap": return "Rekap Data Gizi";
       case "/riwayat": return "Riwayat Pemeriksaan";
-      case "/export": return "Export Laporan PDF";
+      case "/export": return "Laporan Posyandu";
       default: return "SimGizi Posyandu";
     }
   };
 
   const namaPetugas = userData?.nama || currentWorker.nama;
   const posyanduPetugas = userData?.posyandu || currentWorker.posyandu;
-  const avatarPetugas = userData?.avatar || currentWorker.avatar;
 
   return (
     <header className="h-16 bg-card border-b border-border sticky top-0 z-30 px-4 sm:px-6 flex items-center justify-between">
@@ -71,11 +70,10 @@ export const Navbar = ({ toggleSidebar }: NavbarProps) => {
 
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-2.5 pl-3 border-l border-border">
-          <img
-            src={avatarPetugas}
-            alt={namaPetugas}
-            className="w-8 h-8 rounded-full object-cover ring-2 ring-primary/20"
-          />
+          {/* Reliable Dummy Avatar Icon */}
+          <div className="w-8 h-8 rounded-full bg-primary/10 border border-primary/20 text-primary flex items-center justify-center font-bold text-xs shrink-0 ring-2 ring-primary/20">
+            <User className="w-4 h-4 text-primary" />
+          </div>
           <div className="hidden md:block text-left text-xs">
             <span className="font-bold text-foreground block leading-none">
               {namaPetugas}

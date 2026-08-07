@@ -8,8 +8,7 @@ import {
   LayoutDashboard, 
   UserPlus, 
   ClipboardList, 
-  History, 
-  FileSpreadsheet 
+  History 
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -18,7 +17,6 @@ const navItems = [
   { name: "Pencatatan Data Anak", href: "/pencatatan", icon: UserPlus },
   { name: "Rekap Data Gizi", href: "/rekap", icon: ClipboardList },
   { name: "Riwayat Pemeriksaan", href: "/riwayat", icon: History },
-  { name: "Export Laporan", href: "/export", icon: FileSpreadsheet },
 ];
 
 interface SidebarProps {
