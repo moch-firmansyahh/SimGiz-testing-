@@ -48,22 +48,32 @@
 }
 
 @media print {
+  *, *::before, *::after {
+    overflow: visible !important;
+    overflow-x: visible !important;
+    overflow-y: visible !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    position: static !important;
+    float: none !important;
+  }
   html, body {
     background: #ffffff !important;
     color: #000000 !important;
-    overflow: visible !important;
-    height: auto !important;
-  }
-  header, aside, nav, .print\:hidden {
-    display: none !important;
-  }
-  div, main, section {
     margin: 0 !important;
     padding: 0 !important;
-    overflow: visible !important;
-    height: auto !important;
-    max-width: 100% !important;
+    width: 100% !important;
+  }
+  header, aside, nav, button, .print\:hidden {
+    display: none !important;
+  }
+  .print-document {
+    display: block !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 15px !important;
     box-shadow: none !important;
-    border-radius: 0 !important;
+    border: none !important;
   }
 }

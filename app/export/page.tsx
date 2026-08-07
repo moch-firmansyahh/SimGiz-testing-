@@ -80,13 +80,13 @@ export default function ExportPage() {
         <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 flex items-center gap-3 print:hidden animate-in fade-in">
           <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
           <span className="text-xs font-bold">
-            Dialog pencetakan & simpan PDF dibuka. Silakan pilih "Simpan sebagai PDF" (*Save as PDF*).
+            Dialog cetak/simpan PDF dibuka. Silakan pilih "Save as PDF" (*Simpan sebagai PDF*).
           </span>
         </div>
       )}
 
-      {/* Printable Report Document Card */}
-      <div className="bg-white p-8 rounded-2xl border border-border shadow-sm print:shadow-none print:border-none print:p-0 print:m-0 print:w-full">
+      {/* Printable Report Document Container */}
+      <div id="printable-report" className="print-document bg-white p-8 rounded-2xl border border-border shadow-sm print:shadow-none print:border-none print:p-0 print:m-0 print:w-full">
         <div className="border-b-2 border-slate-900 pb-4 mb-6 text-center">
           <h2 className="text-lg font-black text-slate-900 uppercase tracking-wide">
             LAPORAN REKAPITULASI GIZI BALITA & DETEKSI STUNTING
