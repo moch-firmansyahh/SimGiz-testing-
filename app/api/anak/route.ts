@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { generateAIRecommendation } from "@/lib/gemini";
 
 export const dynamic = "force-dynamic";
 
-const fallbackChildren = [
+// In-Memory store to guarantee newly added records appear at top immediately across requests
+let globalChildrenStore: any[] = [
   {
     id: "anak-1",
     nama: "Muhammad Arfan",
@@ -20,7 +22,7 @@ const fallbackChildren = [
     statusGizi: "Stunting",
     tanggalPemeriksaan: "2026-08-05",
     risikoLevel: "Kritis",
-    rekomendasiAI: "Indikasi Stunting Berat (TB/U < -3 SD). Segera rujuk ke Puskesmas Cilandak untuk intervensi PMT Pemulihan tinggi protein (putih telur & susu khusus).",
+    rekomendasiAI: "Indikasi Stunting Berat (TB/U < -3 SD). Segera rujuk ke Puskesmas Cilandak untuk intervensi PMT Pemulihan tinggi protein.",
   },
   {
     id: "anak-2",
@@ -38,7 +40,7 @@ const fallbackChildren = [
     statusGizi: "Gizi Buruk",
     tanggalPemeriksaan: "2026-08-06",
     risikoLevel: "Kritis",
-    rekomendasiAI: "Z-score BB/TB < -3 SD mengindikasikan Gizi Buruk. Berikan konseling ASI Eksklusif/MPASI padat gizi & pemantauan kenaikan BB tiap minggu.",
+    rekomendasiAI: "Z-score BB/TB < -3 SD mengindikasikan Gizi Buruk. Berikan konseling ASI Eksklusif/MPASI padat gizi.",
   },
   {
     id: "anak-3",
@@ -56,7 +58,7 @@ const fallbackChildren = [
     statusGizi: "Stunting",
     tanggalPemeriksaan: "2026-08-04",
     risikoLevel: "Tinggi",
-    rekomendasiAI: "Kategori Stunting Sedang (TB/U -2 s/d -3 SD). Edukasi pola asuh nutrisi kaya protein hewani (ikan, ayam, daging).",
+    rekomendasiAI: "Kategori Stunting Sedang (TB/U -2 s/d -3 SD). Edukasi pola asuh nutrisi kaya protein hewani.",
   },
   {
     id: "anak-4",
@@ -74,7 +76,7 @@ const fallbackChildren = [
     statusGizi: "Gizi Kurang",
     tanggalPemeriksaan: "2026-08-06",
     risikoLevel: "Sedang",
-    rekomendasiAI: "BB/U & BB/TB menunjukkan Gizi Kurang. Berikan makanan tambahan (PMT) lokal berbasis tempe, telur, dan buah segar.",
+    rekomendasiAI: "BB/U & BB/TB menunjukkan Gizi Kurang. Berikan makanan tambahan (PMT) lokal berbasis tempe dan telur.",
   },
   {
     id: "anak-5",
@@ -92,7 +94,7 @@ const fallbackChildren = [
     statusGizi: "Normal",
     tanggalPemeriksaan: "2026-08-07",
     risikoLevel: "Rendah",
-    rekomendasiAI: "Pertumbuhan anak sangat optimal sesuai standar WHO. Pertahankan pemberian variasi makanan gizi seimbang.",
+    rekomendasiAI: "Pertumbuhan anak sangat optimal sesuai standar WHO. Pertahankan pola makan seimbang.",
   },
   {
     id: "anak-6",
@@ -110,43 +112,7 @@ const fallbackChildren = [
     statusGizi: "Normal",
     tanggalPemeriksaan: "2026-08-07",
     risikoLevel: "Rendah",
-    rekomendasiAI: "Kondisi gizi normal. Pertahankan asupan ASI dilanjutkan MPASI kaya gizi dan imunisasi rutin di posyandu.",
-  },
-  {
-    id: "anak-7",
-    nama: "Davin Alfarizi",
-    nik: "3174012011220007",
-    usiaBulan: 21,
-    jenisKelamin: "L",
-    namaOrangTua: "Agus Supriadi",
-    alamat: "RT 06 / RW 03 No. 04",
-    beratBadan: 9.8,
-    tinggiBadan: 80.0,
-    zScoreBB_U: -1.95,
-    zScoreTB_U: -2.05,
-    zScoreBB_TB: -1.50,
-    statusGizi: "Gizi Kurang",
-    tanggalPemeriksaan: "2026-08-03",
-    risikoLevel: "Sedang",
-    rekomendasiAI: "Gizi Kurang berisiko stunting jika tidak ditangani. Berikan konseling kebersihan lingkungan rumah.",
-  },
-  {
-    id: "anak-8",
-    nama: "Kirana Lashira",
-    nik: "3174015002240008",
-    usiaBulan: 6,
-    jenisKelamin: "P",
-    namaOrangTua: "Maya Fitriani",
-    alamat: "RT 01 / RW 01 No. 50",
-    beratBadan: 7.8,
-    tinggiBadan: 66.5,
-    zScoreBB_U: 0.30,
-    zScoreTB_U: 0.50,
-    zScoreBB_TB: 0.15,
-    statusGizi: "Normal",
-    tanggalPemeriksaan: "2026-08-07",
-    risikoLevel: "Rendah",
-    rekomendasiAI: "Bayi tumbuh sehat. Dorong ibu melanjutkan ASI Eksklusif dan persiapan MPASI bergizi.",
+    rekomendasiAI: "Kondisi gizi normal. Pertahankan asupan ASI dilanjutkan MPASI kaya gizi.",
   },
 ];
 
@@ -159,64 +125,50 @@ export async function GET(request: Request) {
     const limit = parseInt(searchParams.get("limit") || "8");
 
     const skip = (page - 1) * limit;
-    let totalItems = 0;
     let dbChildren: any[] = [];
 
     try {
-      const where: any = {};
-      if (search) {
-        where.OR = [
-          { nama: { contains: search, mode: "insensitive" } },
-          { nik: { contains: search, mode: "insensitive" } },
-          { namaOrangTua: { contains: search, mode: "insensitive" } },
-        ];
-      }
-      if (status && status !== "Semua") {
-        where.statusGizi = status;
-      }
-
-      [totalItems, dbChildren] = await Promise.all([
-        prisma.anak.count({ where }),
-        prisma.anak.findMany({
-          where,
-          skip,
-          take: limit,
-          orderBy: { createdAt: "desc" },
-        }),
-      ]);
+      dbChildren = await prisma.anak.findMany({
+        orderBy: { createdAt: "desc" },
+      });
     } catch (dbErr) {
       console.warn("GET /api/anak DB lookup fallback:", dbErr);
     }
 
-    let finalData = dbChildren.length > 0 ? dbChildren : fallbackChildren;
+    // Merge database records with global in-memory store cleanly without duplicates
+    const combinedMap = new Map();
+    globalChildrenStore.forEach((c) => combinedMap.set(c.nik || c.id, c));
+    dbChildren.forEach((c) => combinedMap.set(c.nik || c.id, c));
 
-    // Filter fallback data if search/status query applied
-    if (dbChildren.length === 0) {
-      if (search) {
-        const q = search.toLowerCase();
-        finalData = finalData.filter(
-          (c) =>
-            c.nama.toLowerCase().includes(q) ||
-            c.nik.includes(q) ||
-            c.namaOrangTua.toLowerCase().includes(q)
-        );
-      }
-      if (status && status !== "Semua") {
-        finalData = finalData.filter((c) => c.statusGizi === status);
-      }
-      totalItems = finalData.length;
-      finalData = finalData.slice(skip, skip + limit);
+    let allList = Array.from(combinedMap.values());
+
+    // Apply search filter
+    if (search) {
+      const q = search.toLowerCase();
+      allList = allList.filter(
+        (c) =>
+          c.nama.toLowerCase().includes(q) ||
+          (c.nik && c.nik.includes(q)) ||
+          (c.namaOrangTua && c.namaOrangTua.toLowerCase().includes(q))
+      );
     }
 
-    const totalPages = Math.ceil((totalItems || finalData.length) / limit) || 1;
+    // Apply status filter
+    if (status && status !== "Semua") {
+      allList = allList.filter((c) => c.statusGizi === status);
+    }
+
+    const totalItems = allList.length;
+    const paginatedData = allList.slice(skip, skip + limit);
+    const totalPages = Math.ceil(totalItems / limit) || 1;
 
     return NextResponse.json({
       success: true,
-      data: finalData,
+      data: paginatedData,
       pagination: {
         page,
         limit,
-        totalItems: totalItems || finalData.length,
+        totalItems,
         totalPages,
       },
     });
@@ -224,8 +176,8 @@ export async function GET(request: Request) {
     console.error("GET /api/anak Error:", error);
     return NextResponse.json({
       success: true,
-      data: fallbackChildren,
-      pagination: { page: 1, limit: 8, totalItems: fallbackChildren.length, totalPages: 1 },
+      data: globalChildrenStore.slice(0, 8),
+      pagination: { page: 1, limit: 8, totalItems: globalChildrenStore.length, totalPages: 1 },
     });
   }
 }
@@ -272,35 +224,39 @@ export async function POST(request: Request) {
     const zBB_TB = parseFloat(((zBB - zTB)).toFixed(2));
 
     let statusGizi: 'Normal' | 'Gizi Kurang' | 'Gizi Buruk' | 'Stunting' = 'Normal';
-    let rekomendasiAI = "";
     let risikoLevel = "Rendah";
 
     if (zTB < -3.0) {
       statusGizi = "Stunting";
       risikoLevel = "Kritis";
-      rekomendasiAI = "Indikasi Stunting Berat (TB/U < -3 SD). Segera rujuk ke Puskesmas & berikan PMT Pemulihan tinggi protein hewani.";
     } else if (zBB < -3.0 || zBB_TB < -3.0) {
       statusGizi = "Gizi Buruk";
       risikoLevel = "Kritis";
-      rekomendasiAI = "Indikasi Gizi Buruk (BB/TB < -3 SD). Terapi gizi dan pemantauan ketat.";
     } else if (zTB < -2.0) {
       statusGizi = "Stunting";
       risikoLevel = "Tinggi";
-      rekomendasiAI = "Indikasi Stunting Sedang (TB/U < -2 SD). Edukasi nutrisi dan pemantauan rutin.";
     } else if (zBB < -2.0 || zBB_TB < -2.0) {
       statusGizi = "Gizi Kurang";
       risikoLevel = "Sedang";
-      rekomendasiAI = "Indikasi Gizi Kurang (BB/U < -2 SD). Makanan Tambahan (PMT) lokal.";
     } else {
       statusGizi = "Normal";
       risikoLevel = "Rendah";
-      rekomendasiAI = "Status gizi normal ideal WHO. Pertahankan pola makan seimbang.";
     }
+
+    // Call Google Gemini AI Recommendation Generator
+    const rekomendasiAI = await generateAIRecommendation({
+      nama,
+      usiaBulan: usia,
+      beratBadan: bb,
+      tinggiBadan: tb,
+      zScoreTB_U: zTB,
+      statusGizi,
+    });
 
     const tgl = new Date().toISOString().split("T")[0];
     const nikFinal = nik && nik.trim() !== "" ? nik.trim() : `3174${Date.now().toString().slice(-12)}`;
 
-    let anak: any = {
+    const newChildRecord = {
       id: `anak-${Date.now()}`,
       nama,
       nik: nikFinal,
@@ -319,16 +275,19 @@ export async function POST(request: Request) {
       rekomendasiAI,
     };
 
+    // Prepend to global store so it shows up at top of /rekap instantly
+    globalChildrenStore.unshift(newChildRecord);
+
     try {
-      anak = await prisma.anak.upsert({
+      await prisma.anak.upsert({
         where: { nik: nikFinal },
-        update: anak,
-        create: anak,
+        update: newChildRecord,
+        create: newChildRecord,
       });
 
       await prisma.pemeriksaan.create({
         data: {
-          anakId: anak.id,
+          anakId: newChildRecord.id,
           beratBadan: bb,
           tinggiBadan: tb,
           zScoreBB_U: zBB,
@@ -340,10 +299,10 @@ export async function POST(request: Request) {
         },
       });
     } catch (dbErr) {
-      console.warn("POST /api/anak DB upsert fallback:", dbErr);
+      console.warn("POST /api/anak DB save fallback:", dbErr);
     }
 
-    return NextResponse.json({ success: true, data: anak });
+    return NextResponse.json({ success: true, data: newChildRecord });
   } catch (error) {
     console.error("POST /api/anak Error:", error);
     return NextResponse.json({ error: "Terjadi kendala saat menyimpan data balita." }, { status: 500 });
