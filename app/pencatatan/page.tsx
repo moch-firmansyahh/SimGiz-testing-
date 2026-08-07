@@ -59,19 +59,19 @@ export default function PencatatanPage() {
 
     if (zTB < -3.0) {
       status = "Stunting";
-      rekomendasi = "Indikasi Stunting Berat (TB/U < -3 SD). Segera rujuk ke Puskesmas & berikan PMT Pemulihan tinggi protein hewani.";
+      rekomendasi = `[KRITIS] Indikasi Stunting Berat (Z-Score TB/U ${zTB} SD). Berisiko tinggi terhadap hambatan perkembangan otak permanen. Segera rujukan darurat ke Puskesmas, evaluasi penyakit penyerta (TBC/cacingan), dan terapkan protokol PMT Pemulihan Protein Hewani (2 telur/hari + susu khusus kalori tinggi).`;
     } else if (zBB < -3.0 || zBB_TB < -3.0) {
       status = "Gizi Buruk";
-      rekomendasi = "Indikasi Gizi Buruk (BB/TB < -3 SD). Terapi gizi dan pemantauan ketat.";
+      rekomendasi = `[KRITIS] Indikasi Gizi Buruk Akut. Potensi komplikasi penurunan kekebalan tubuh dan atrofi otot. Segera lakukan rujukan ke Poli Tumbuh Kembang, berikan terapi nutrisi F-75/F-100 dan pantau kenaikan BB tiap 3 hari.`;
     } else if (zTB < -2.0) {
       status = "Stunting";
-      rekomendasi = "Indikasi Stunting Sedang (TB/U < -2 SD). Edukasi nutrisi dan pemantauan rutin.";
+      rekomendasi = `[KRITIS] Indikasi Stunting Sedang (Z-Score TB/U ${zTB} SD). Perlu perhatian medis ketat sebelum menjadi kronis. Berikan konseling gizi intensif keluarga & wajibkan konsumsi protein hewani harian (ikan, telur, hati ayam).`;
     } else if (zBB < -2.0 || zBB_TB < -2.0) {
       status = "Gizi Kurang";
-      rekomendasi = "Indikasi Gizi Kurang (BB/U < -2 SD). Makanan Tambahan (PMT) lokal.";
+      rekomendasi = `[PERINGATAN KLINIS] Indikasi Gizi Kurang. Berisiko jatuh ke gizi buruk dalam 1 bulan tanpa intervensi. Berikan suplemen zink, MPASI kaya zat besi, dan pemantauan penimbangan mingguan di posyandu.`;
     } else {
       status = "Normal";
-      rekomendasi = "Status gizi normal ideal WHO. Pertahankan pola makan seimbang.";
+      rekomendasi = `[EVALUASI OPTIMAL] Pertumbuhan fisik balita sesuai kurva standar WHO. Lanjutkan pengawasan tumbuh kembang rutin tiap bulan untuk mencegah kegagalan pertumbuhan (growth faltering) di usia ${usia} bulan.`;
     }
 
     setCalcResult({
@@ -276,7 +276,7 @@ export default function PencatatanPage() {
         <Card className="flex flex-col">
           <CardHeader>
             <div className="flex items-center gap-2 text-foreground font-extrabold text-sm">
-              <Sparkles className="w-4 h-4 text-primary" /> Kalkulator & Rekomendasi AI
+              <Sparkles className="w-4 h-4 text-primary" /> Kalkulator & Analisis AI Kritis
             </div>
           </CardHeader>
           <CardContent className="flex-1 space-y-4">
@@ -293,9 +293,9 @@ export default function PencatatanPage() {
                     {calcResult.statusGizi}
                   </span>
                 </div>
-                <div className="p-3.5 rounded-xl bg-primary/10 border border-primary/20 text-xs">
-                  <span className="font-bold text-primary block mb-1">Rekomendasi AI Intervensi:</span>
-                  <p className="text-foreground font-medium leading-relaxed">{calcResult.rekomendasiAI}</p>
+                <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-xs">
+                  <span className="font-bold text-rose-700 block mb-1">Rekomendasi Analisis AI Kritis:</span>
+                  <p className="text-rose-950 font-medium leading-relaxed">{calcResult.rekomendasiAI}</p>
                 </div>
               </div>
             ) : (
