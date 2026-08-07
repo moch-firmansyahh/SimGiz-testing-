@@ -242,10 +242,10 @@ export default function RekapPage() {
         </CardContent>
       </Card>
 
-      {/* Detail Modal */}
+      {/* Fullscreen Backdrop Detail Modal */}
       {selectedChild && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-card rounded-2xl max-w-md w-full p-6 shadow-xl border border-border relative animate-in zoom-in-95">
+        <div className="fixed inset-0 z-[999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-card rounded-2xl max-w-md w-full p-6 shadow-2xl border border-border relative animate-in zoom-in-95">
             <button
               onClick={() => setSelectedChild(null)}
               className="absolute top-4 right-4 p-2 text-muted-foreground hover:text-foreground rounded-full hover:bg-muted"
@@ -265,26 +265,26 @@ export default function RekapPage() {
 
             <div className="p-3.5 rounded-xl bg-primary/10 border border-primary/20 text-xs mb-4">
               <span className="font-bold text-primary block mb-1">Rekomendasi Intervensi:</span>
-              <p className="text-foreground font-medium">{selectedChild.rekomendasiAI}</p>
+              <p className="text-foreground font-medium leading-relaxed">{selectedChild.rekomendasiAI}</p>
             </div>
 
-            <Button onClick={() => setSelectedChild(null)} className="w-full">
+            <Button onClick={() => setSelectedChild(null)} variant="emerald" className="w-full">
               Tutup Ringkasan
             </Button>
           </div>
         </div>
       )}
 
-      {/* Delete Confirmation Modal */}
+      {/* Fullscreen Backdrop Delete Confirmation Modal */}
       {deleteTarget && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-card rounded-2xl max-w-sm w-full p-5 shadow-xl border border-border space-y-4">
+        <div className="fixed inset-0 z-[999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-card rounded-2xl max-w-sm w-full p-5 shadow-2xl border border-border space-y-4">
             <div className="flex items-center gap-3">
               <div className="p-2.5 rounded-xl bg-rose-100 text-rose-700">
                 <AlertTriangle className="w-5 h-5" />
               </div>
               <div>
-                <h4 className="font-bold text-sm text-foreground">Konfirmasi Pengahapusan</h4>
+                <h4 className="font-bold text-sm text-foreground">Konfirmasi Penghapusan</h4>
                 <p className="text-xs text-muted-foreground">Hapus data balita {deleteTarget.nama}?</p>
               </div>
             </div>

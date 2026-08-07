@@ -114,10 +114,10 @@ function AlertListComponent({ highRiskList = [], loading }: AlertListProps) {
         )}
       </CardContent>
 
-      {/* AI Recommendation Modal */}
+      {/* Fullscreen Backdrop AI Recommendation Modal */}
       {selectedChild && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-card rounded-2xl max-w-lg w-full p-5 sm:p-6 shadow-xl border border-border relative animate-in zoom-in-95 duration-150">
+        <div className="fixed inset-0 z-[999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-card rounded-2xl max-w-lg w-full p-5 sm:p-6 shadow-2xl border border-border relative animate-in zoom-in-95 duration-150">
             <button
               onClick={() => setSelectedChild(null)}
               className="absolute top-4 right-4 p-2 text-muted-foreground hover:text-foreground rounded-full hover:bg-muted"
@@ -168,14 +168,14 @@ function AlertListComponent({ highRiskList = [], loading }: AlertListProps) {
 
             <div className="bg-primary/10 border border-primary/20 rounded-xl p-3.5 mb-4">
               <div className="flex items-center gap-1.5 text-primary font-bold text-xs mb-1">
-                <Sparkles className="w-4 h-4" /> Rekomendasi Intervensi
+                <Sparkles className="w-4 h-4" /> Rekomendasi Intervensi AI
               </div>
               <p className="text-xs text-foreground font-medium leading-relaxed">
                 {selectedChild.rekomendasiAI}
               </p>
             </div>
 
-            <Button onClick={() => setSelectedChild(null)} className="w-full h-9 text-xs">
+            <Button onClick={() => setSelectedChild(null)} variant="emerald" className="w-full h-9 text-xs font-bold">
               Tutup Ringkasan
             </Button>
           </div>
