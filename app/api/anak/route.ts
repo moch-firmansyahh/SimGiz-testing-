@@ -112,10 +112,16 @@ export async function POST(request: Request) {
     const zBB = parseFloat(((bb - medianBB) / 1.5).toFixed(2));
     const zBB_TB = parseFloat(((zBB - zTB)).toFixed(2));
 
-    let statusGizi: 'Normal' | 'Gizi Kurang' | 'Gizi Buruk' | 'Stunting' = 'Normal';
+    let statusGizi: 'Normal' | 'Gizi Kurang' | 'Gizi Buruk' | 'Stunting' | 'Obesitas' | 'Gizi Lebih' = 'Normal';
     let risikoLevel = "Rendah";
 
-    if (zTB < -3.0) {
+    if (zBB > 3.0 || zBB_TB > 3.0) {
+      statusGizi = "Obesitas";
+      risikoLevel = "Kritis";
+    } else if (zBB > 2.0 || zBB_TB > 2.0) {
+      statusGizi = "Gizi Lebih";
+      risikoLevel = "Tinggi";
+    } else if (zTB < -3.0) {
       statusGizi = "Stunting";
       risikoLevel = "Kritis";
     } else if (zBB < -3.0 || zBB_TB < -3.0) {
@@ -138,7 +144,9 @@ export async function POST(request: Request) {
       usiaBulan: usia,
       beratBadan: bb,
       tinggiBadan: tb,
+      zScoreBB_U: zBB,
       zScoreTB_U: zTB,
+      zScoreBB_TB: zBB_TB,
       statusGizi,
     });
 

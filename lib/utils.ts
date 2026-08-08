@@ -20,6 +20,11 @@ export function getStatusBadgeClass(status: string) {
       return "bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100";
     case "gizi buruk":
       return "bg-red-50 text-red-700 border-red-200 hover:bg-red-100";
+    case "obesitas":
+      return "bg-purple-100 text-purple-800 border-purple-300 hover:bg-purple-200";
+    case "gizi lebih":
+    case "overweight":
+      return "bg-orange-50 text-orange-800 border-orange-200 hover:bg-orange-100";
     case "stunting":
     case "severely stunted":
       return "bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100";

@@ -11,7 +11,7 @@ export interface ChildRecord {
   zScoreBB_U: number;
   zScoreTB_U: number;
   zScoreBB_TB: number;
-  statusGizi: 'Normal' | 'Gizi Kurang' | 'Gizi Buruk' | 'Stunting';
+  statusGizi: 'Normal' | 'Gizi Kurang' | 'Gizi Buruk' | 'Stunting' | 'Obesitas' | 'Gizi Lebih';
   tanggalPemeriksaan: string;
   risikoLevel: 'Rendah' | 'Sedang' | 'Tinggi' | 'Kritis';
   rekomendasiAI: string;

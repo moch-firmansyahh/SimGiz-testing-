@@ -3,73 +3,85 @@ export async function generateAIRecommendation({
   usiaBulan,
   beratBadan,
   tinggiBadan,
+  zScoreBB_U,
   zScoreTB_U,
+  zScoreBB_TB,
   statusGizi,
 }: {
-  nama: string;
+  nama?: string;
   usiaBulan: number;
   beratBadan: number;
   tinggiBadan: number;
+  zScoreBB_U: number;
   zScoreTB_U: number;
+  zScoreBB_TB: number;
   statusGizi: string;
 }): Promise<string> {
+  const nameLabel = nama && nama.trim() !== "" ? nama.trim() : "Balita";
   const apiKey = process.env.GEMINI_API_KEY;
 
   if (apiKey) {
-    const prompt = `Anda adalah Dokter Spesialis Anak & Konsultan Utama Gizi Kemenkes RI. Berikan rekomendasi medis klinis yang 100% patuh pada Keputusan Menteri Kesehatan RI No. 2/2020 & Pedoman WHO Management of Malnutrition untuk balita berikut:
-- Nama: ${nama} (${usiaBulan} Bulan)
-- Hasil Fisik: BB ${beratBadan} kg, TB ${tinggiBadan} cm
-- Z-Score TB/U: ${zScoreTB_U} SD | Status Gizi: ${statusGizi}
+    const prompt = `Anda adalah Dokter Spesialis Anak & Konsultan Utama Gizi Kemenkes RI. Berikan analisis klinis medis real-time yang 100% patuh pada Keputusan Menteri Kesehatan RI No. 2/2020 & Pedoman WHO Management of Malnutrition untuk balita berikut:
+- Nama: ${nameLabel} (${usiaBulan} Bulan)
+- Pengukuran Fisik: BB ${beratBadan} kg, TB ${tinggiBadan} cm
+- Z-Score BB/U: ${zScoreBB_U} SD | Z-Score TB/U: ${zScoreTB_U} SD | Z-Score BB/TB: ${zScoreBB_TB} SD
+- Diagnosa Status Gizi: ${statusGizi}
 
-Panduan Klinis Resmi (Kemenkes RI & WHO):
-1. **Jika Stunting (TB/U < -2 SD)**:
-   - Rujukan ke Puskesmas/Spesialis Anak untuk rujukan medis mendeteksi penyakit penyerta/red flags (TBC Paru, ISK, Cacingan).
-   - Resepkan PMT Pemulihan tinggi Protein Hewani (telur 1-2 butir/hari, ikan, susu formula khusus PKMK) guna mencegah hambatan kognitif.
-2. **Jika Gizi Buruk (BB/TB < -3 SD)**:
-   - Terapkan Protokol 10 Langkah Tata Laksana Gizi Buruk: Fase Stabilisasi (Formula F-75) lanjut Fase Transisi (Formula F-100 / RUTF).
-   - Segera rujuk ke Puskesmas Rawat Inap / TFC (Therapeutic Feeding Center).
-3. **Jika Gizi Kurang (BB/U < -2 SD)**:
-   - Berikan PMT Berbasis Pangan Lokal kaya protein hewani & Suplementasi Zink 10-20 mg/hari selama 14 hari.
-4. **Jika Normal (-2 SD s/d +2 SD)**:
-   - Anjurkan konsistensi Isi Piringku Balita & penimbangan bulanan di Posyandu untuk mencegah growth faltering.
+Pedoman Diagnostik Klinis Resmi (Kemenkes RI & WHO):
+1. Jika Obesitas (BB/TB atau BB/U > +3 SD): Terjadi kelebihan akumulasi lemak ekstrem. Wajib evaluasi komorbiditas kardiovaskular/metabolik, rujuk ke Dokter Spesialis Anak, dan atur restrukturisasi pola makan MPASI/Gizi Seimbang serta aktivitas fisik.
+2. Jika Gizi Lebih / Overweight (> +2 SD s/d +3 SD): Risiko obesitas tinggi. Kurangi asupan gula/lemak jenuh, ganti dengan serat & protein murni, serta pantau pertumbuhan bulanan.
+3. Jika Stunting (TB/U < -2 SD): Hambatan kronis pertumbuhan tulang. Segera rujuk ke Puskesmas/Spesialis Anak untuk pemindaian penyakit penyerta (TBC/cacingan/ISK) & resepkan PMT tinggi Protein Hewani (1-2 telur/hari, ikan, susu PKMK).
+4. Jika Gizi Buruk (BB/TB atau BB/U < -3 SD): Kegawatan gizi akut. Terapkan Protokol 10 Langkah Tata Laksana Gizi Buruk: Fase Stabilisasi (Formula F-75) lanjut Transisi (F-100 / RUTF). Rujuk darurat ke TFC / Puskesmas Rawat Inap.
+5. Jika Gizi Kurang (< -2 SD): Defisit energi kronis. Berikan suplemen Zink 10-20 mg/hari selama 14 hari, PMT Berbasis Pangan Lokal tinggi protein hewani.
+6. Jika Normal (-2 SD s/d +2 SD): Pertahankan pola Isi Piringku Balita, ASI Eksklusif/MPASI kaya zat besi, dan penimbangan rutin bulanan.
 
-Tuliskan dalam 2-3 kalimat medis yang sangat presisi, akurat, dan menuntut tindakan klinis langsung.`;
+Tuliskan analisis medis dalam 2-3 kalimat yang sangat spesisi, mengutip angka Z-score balita ini (${zScoreBB_U} SD / ${zScoreTB_U} SD), dan memberikan rekomendasi tindakan klinis langsung.`;
 
-    try {
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents: [
-              {
-                parts: [{ text: prompt }],
-              },
-            ],
-          }),
+    const candidateModels = [
+      "gemini-2.0-flash",
+      "gemini-2.5-flash-lite",
+      "gemini-2.0-flash-lite",
+      "gemini-1.5-pro",
+    ];
+
+    for (const model of candidateModels) {
+      try {
+        const response = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: prompt }] }],
+            }),
+          }
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          const aiText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (aiText && aiText.trim() !== "") {
+            return aiText.trim();
+          }
         }
-      );
-
-      if (response.ok) {
-        const data = await response.json();
-        const aiText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (aiText && aiText.trim() !== "") {
-          return aiText.trim();
-        }
+      } catch (err) {
+        console.warn(`Gemini API call model ${model} failed:`, err);
       }
-    } catch (err) {
-      console.warn("Gemini API call fallback:", err);
     }
   }
 
-  // Official Kemenkes RI & WHO Clinical Fallbacks
-  if (statusGizi === "Stunting") {
-    return `[STANDAR KEMENKES RI & WHO] Terindikasi Stunting (TB/U ${zScoreTB_U} SD). Segera rujuk ke Dokter Spesialis Anak/Puskesmas untuk pemindaian penyakit penyerta (TBC/cacingan) dan berikan PMT Pemulihan tinggi Protein Hewani (1-2 telur/hari + susu PKMK).`;
+  // Parameter-driven dynamic clinical analysis engine (for fallback when rate-limited)
+  if (statusGizi === "Obesitas") {
+    return `[ANALISIS MEDIS KEMENKES RI & WHO] Pasien ${nameLabel} (${usiaBulan} Bulan) terindikasi Obesitas Berat dengan Z-Score BB/TB +${zScoreBB_TB} SD (BB ${beratBadan} kg pada TB ${tinggiBadan} cm). Berisiko tinggi terhadap sindrom metabolik dan gangguan kardiovaskular dini. Segera rujuk ke Dokter Spesialis Anak untuk resep evaluasi diet klinis & restrukturisasi asupan kalori murni tanpa mengganggu tumbuh kembang.`;
+  } else if (statusGizi === "Gizi Lebih") {
+    return `[ANALISIS MEDIS KEMENKES RI & WHO] Pasien ${nameLabel} (${usiaBulan} Bulan) terindikasi Gizi Lebih (Overweight) dengan Z-Score BB/U +${zScoreBB_U} SD. Disarankan penghentian konsumsi makanan tinggi gula/soda, meningkatkan aktivitas fisik harian balita, serta mengganti camilan olahan dengan protein hewani & serat buah utuh.`;
+  } else if (statusGizi === "Stunting") {
+    return `[ANALISIS MEDIS KEMENKES RI & WHO] Pasien ${nameLabel} (${usiaBulan} Bulan) terindikasi Stunting (TB/U ${zScoreTB_U} SD, TB ${tinggiBadan} cm). Berisiko tinggi terhadap hambatan kognitif permanen. Segera lakukan rujukan ke Puskesmas/Spesialis Anak untuk skrining TBC/ISK/Cacingan dan resepkan PMT Pemulihan tinggi Protein Hewani (telur, ikan, susu PKMK).`;
   } else if (statusGizi === "Gizi Buruk") {
-    return `[STANDAR KEMENKES RI & WHO] Terindikasi Gizi Buruk Akut. Lakukan rujukan darurat ke Puskesmas Rawat Inap/TFC untuk Tatalaksana Gizi Buruk 10 Langkah (Fase Stabilisasi Formula F-75 dilanjutkan F-100/RUTF).`;
+    return `[ANALISIS MEDIS KEMENKES RI & WHO] Pasien ${nameLabel} (${usiaBulan} Bulan) terindikasi Gizi Buruk Akut (BB/TB ${zScoreBB_TB} SD). Lakukan rujukan darurat ke TFC/Puskesmas Rawat Inap untuk penanganan Protokol 10 Langkah Gizi Buruk (Fase Stabilisasi F-75 & F-100).`;
   } else if (statusGizi === "Gizi Kurang") {
-    return `[STANDAR KEMENKES RI & WHO] Terindikasi Gizi Kurang. Berikan suplemen Zink 10-20 mg/hari selama 14 hari, PMT Pemulihan Berbasis Pangan Lokal tinggi protein hewani, dan evaluasi penimbangan mingguan.`;
+    return `[ANALISIS MEDIS KEMENKES RI & WHO] Pasien ${nameLabel} (${usiaBulan} Bulan) terindikasi Gizi Kurang (Z-Score BB/U ${zScoreBB_U} SD). Berikan suplemen Zink 10-20 mg/hari selama 14 hari, tingkatkan asupan PMT Lokal kaya protein hewani, dan lakukan pemantauan berat badan per 2 minggu.`;
   }
-  return `[STANDAR KEMENKES RI & WHO] Status Gizi Normal. Pertahankan pola makan seimbang berbasis Isi Piringku Balita, ASI Eksklusif/MPASI kaya zat besi, dan penimbangan rutin bulanan di Posyandu.`;
+
+  return `[ANALISIS MEDIS KEMENKES RI & WHO] Pasien ${nameLabel} (${usiaBulan} Bulan) dalam Status Gizi Normal (Z-Score BB/U ${zScoreBB_U} SD, TB/U ${zScoreTB_U} SD). Pertahankan pola konsumsi Isi Piringku Balita, pastikan asupan ASI/MPASI kaya zat besi, dan lanjutkan penimbangan rutin bulanan di Posyandu.`;
 }

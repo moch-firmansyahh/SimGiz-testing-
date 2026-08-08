@@ -32,16 +32,17 @@ export default function PencatatanPage() {
     zScoreBB_U: number;
     zScoreTB_U: number;
     zScoreBB_TB: number;
-    statusGizi: 'Normal' | 'Gizi Kurang' | 'Gizi Buruk' | 'Stunting';
+    statusGizi: 'Normal' | 'Gizi Kurang' | 'Gizi Buruk' | 'Stunting' | 'Obesitas' | 'Gizi Lebih';
     rekomendasiAI: string;
   } | null>(null);
 
+  const [isAiLoading, setIsAiLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showWhoRules, setShowWhoRules] = useState(false);
 
-  // Real-time automatic Z-Score WHO & AI Recommendation calculation as soon as BB & TB are entered
+  // Real-time Z-Score WHO calculation & Dynamic Gemini AI Recommendation
   useEffect(() => {
     const bb = parseFloat(formData.beratBadan);
     const tb = parseFloat(formData.tinggiBadan);
@@ -49,6 +50,7 @@ export default function PencatatanPage() {
 
     if (!bb || !tb || isNaN(bb) || isNaN(tb) || bb <= 0 || tb <= 0) {
       setCalcResult(null);
+      setIsAiLoading(false);
       return;
     }
 
@@ -59,34 +61,63 @@ export default function PencatatanPage() {
     const zBB = parseFloat(((bb - medianBB) / 1.5).toFixed(2));
     const zBB_TB = parseFloat(((zBB - zTB)).toFixed(2));
 
-    let status: 'Normal' | 'Gizi Kurang' | 'Gizi Buruk' | 'Stunting' = 'Normal';
-    let rekomendasi = "";
+    let status: 'Normal' | 'Gizi Kurang' | 'Gizi Buruk' | 'Stunting' | 'Obesitas' | 'Gizi Lebih' = 'Normal';
 
-    if (zTB < -3.0) {
+    // WHO Standard Z-Score Classification Logic
+    if (zBB > 3.0 || zBB_TB > 3.0) {
+      status = "Obesitas";
+    } else if (zBB > 2.0 || zBB_TB > 2.0) {
+      status = "Gizi Lebih";
+    } else if (zTB < -3.0) {
       status = "Stunting";
-      rekomendasi = `[STANDAR KEMENKES RI & WHO] Indikasi Stunting Berat (Z-Score TB/U ${zTB} SD). Segera rujuk ke Dokter Spesialis Anak/Puskesmas untuk pemindaian penyakit penyerta (TBC/cacingan) & berikan PMT Pemulihan tinggi Protein Hewani (1-2 telur/hari + susu PKMK).`;
     } else if (zBB < -3.0 || zBB_TB < -3.0) {
       status = "Gizi Buruk";
-      rekomendasi = `[STANDAR KEMENKES RI & WHO] Indikasi Gizi Buruk Akut (BB/TB < -3 SD). Lakukan rujukan darurat ke Puskesmas Rawat Inap/TFC untuk Tatalaksana Gizi Buruk 10 Langkah (Fase Stabilisasi Formula F-75 dilanjutkan F-100/RUTF).`;
     } else if (zTB < -2.0) {
       status = "Stunting";
-      rekomendasi = `[STANDAR KEMENKES RI & WHO] Indikasi Stunting Sedang (Z-Score TB/U ${zTB} SD). Berikan konseling nutrisi intensif keluarga & wajibkan konsumsi protein hewani harian (ikan, telur, hati ayam) untuk mencegah komplikasi kognitif.`;
     } else if (zBB < -2.0 || zBB_TB < -2.0) {
       status = "Gizi Kurang";
-      rekomendasi = `[STANDAR KEMENKES RI & WHO] Indikasi Gizi Kurang (BB/U < -2 SD). Berikan suplemen Zink 10-20 mg/hari selama 14 hari, PMT Pemulihan Berbasis Pangan Lokal tinggi protein hewani, dan penimbangan mingguan.`;
     } else {
       status = "Normal";
-      rekomendasi = `[STANDAR KEMENKES RI & WHO] Status Gizi Normal. Pertahankan pola makan seimbang berbasis Isi Piringku Balita, ASI Eksklusif/MPASI kaya zat besi, dan penimbangan rutin bulanan di Posyandu.`;
     }
 
-    setCalcResult({
-      zScoreBB_U: zBB,
-      zScoreTB_U: zTB,
-      zScoreBB_TB: zBB_TB,
-      statusGizi: status,
-      rekomendasiAI: rekomendasi,
-    });
-  }, [formData.beratBadan, formData.tinggiBadan, formData.usiaBulan]);
+    setIsAiLoading(true);
+
+    const timer = setTimeout(async () => {
+      try {
+        const res = await fetch("/api/ai-recommendation", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            nama: formData.nama,
+            usiaBulan: usia,
+            beratBadan: bb,
+            tinggiBadan: tb,
+            zScoreBB_U: zBB,
+            zScoreTB_U: zTB,
+            zScoreBB_TB: zBB_TB,
+            statusGizi: status,
+          }),
+        });
+
+        const data = await res.json();
+        const aiText = data?.rekomendasiAI || "Gagal memperoleh rekomendasi AI.";
+
+        setCalcResult({
+          zScoreBB_U: zBB,
+          zScoreTB_U: zTB,
+          zScoreBB_TB: zBB_TB,
+          statusGizi: status,
+          rekomendasiAI: aiText,
+        });
+      } catch (err) {
+        console.error("AI Recommendation Fetch Error:", err);
+      } finally {
+        setIsAiLoading(false);
+      }
+    }, 350);
+
+    return () => clearTimeout(timer);
+  }, [formData.beratBadan, formData.tinggiBadan, formData.usiaBulan, formData.nama]);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -144,6 +175,16 @@ export default function PencatatanPage() {
         return {
           box: "bg-amber-50 border-amber-200 text-amber-950",
           title: "text-amber-800",
+        };
+      case "Obesitas":
+        return {
+          box: "bg-purple-50 border-purple-200 text-purple-950",
+          title: "text-purple-900",
+        };
+      case "Gizi Lebih":
+        return {
+          box: "bg-orange-50 border-orange-200 text-orange-950",
+          title: "text-orange-900",
         };
       case "Stunting":
       case "Gizi Buruk":
@@ -311,30 +352,59 @@ export default function PencatatanPage() {
           </CardContent>
         </Card>
 
-        {/* Live Automatic Z-Score & Dynamic Color AI Preview Card */}
-        <Card className="flex flex-col">
-          <CardHeader>
-            <div className="flex items-center gap-2 text-foreground font-extrabold text-sm">
-              <Sparkles className="w-4 h-4 text-primary animate-pulse" /> Analisis Medis AI Real-Time
+        {/* Live Automatic Z-Score & Dynamic Gemini AI Preview Card */}
+        <Card className="flex flex-col shadow-sm border-primary/20">
+          <CardHeader className="bg-primary/5 border-b border-primary/10">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-foreground font-extrabold text-sm">
+                <Sparkles className="w-4 h-4 text-primary animate-pulse" /> Analisis Medis AI Real-Time
+              </div>
+              {isAiLoading && (
+                <div className="flex items-center gap-1 text-[11px] font-semibold text-primary">
+                  <Loader2 className="w-3 h-3 animate-spin" /> Analisis AI...
+                </div>
+              )}
             </div>
           </CardHeader>
-          <CardContent className="flex-1 space-y-4">
+          <CardContent className="flex-1 p-4 space-y-4">
             {calcResult ? (
               <div className="space-y-4 animate-in fade-in duration-200">
-                <div className="p-3.5 rounded-xl bg-muted/40 border border-border space-y-2 text-xs">
-                  <div className="flex justify-between"><span className="text-muted-foreground">Z-Score BB/U:</span><span className="font-bold">{calcResult.zScoreBB_U} SD</span></div>
-                  <div className="flex justify-between"><span className="text-muted-foreground">Z-Score TB/U:</span><span className="font-bold">{calcResult.zScoreTB_U} SD</span></div>
-                  <div className="flex justify-between"><span className="text-muted-foreground">Z-Score BB/TB:</span><span className="font-bold">{calcResult.zScoreBB_TB} SD</span></div>
+                <div className="p-3.5 rounded-xl bg-muted/50 border border-border space-y-2 text-xs">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground font-medium">Z-Score BB/U:</span>
+                    <span className={`font-bold ${calcResult.zScoreBB_U > 3 || calcResult.zScoreBB_U < -2 ? "text-red-600" : "text-foreground"}`}>
+                      {calcResult.zScoreBB_U > 0 ? `+${calcResult.zScoreBB_U}` : calcResult.zScoreBB_U} SD
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground font-medium">Z-Score TB/U:</span>
+                    <span className={`font-bold ${calcResult.zScoreTB_U < -2 ? "text-rose-600" : "text-foreground"}`}>
+                      {calcResult.zScoreTB_U > 0 ? `+${calcResult.zScoreTB_U}` : calcResult.zScoreTB_U} SD
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground font-medium">Z-Score BB/TB:</span>
+                    <span className={`font-bold ${calcResult.zScoreBB_TB > 3 || calcResult.zScoreBB_TB < -2 ? "text-purple-700" : "text-foreground"}`}>
+                      {calcResult.zScoreBB_TB > 0 ? `+${calcResult.zScoreBB_TB}` : calcResult.zScoreBB_TB} SD
+                    </span>
+                  </div>
                 </div>
+
                 <div>
-                  <span className="text-xs font-semibold text-muted-foreground block mb-1">Status Gizi (Otomatis):</span>
+                  <span className="text-xs font-semibold text-muted-foreground block mb-1">Status Gizi (Otomatis WHO):</span>
                   <span className={`inline-block px-3 py-1 rounded-md font-extrabold text-xs border ${getStatusBadgeClass(calcResult.statusGizi)}`}>
                     {calcResult.statusGizi}
                   </span>
                 </div>
-                <div className={`p-3.5 rounded-xl border text-xs ${getCardColorClass(calcResult.statusGizi).box}`}>
-                  <span className={`font-bold block mb-1 ${getCardColorClass(calcResult.statusGizi).title}`}>
-                    Rekomendasi Analisis AI Medis:
+
+                <div className={`p-3.5 rounded-xl border text-xs relative ${getCardColorClass(calcResult.statusGizi).box}`}>
+                  {isAiLoading && (
+                    <div className="absolute inset-0 bg-white/70 backdrop-blur-[1px] rounded-xl flex items-center justify-center gap-2 text-xs font-bold text-primary">
+                      <Loader2 className="w-4 h-4 animate-spin" /> Menghubungkan ke Gemini AI...
+                    </div>
+                  )}
+                  <span className={`font-bold block mb-1.5 flex items-center gap-1.5 ${getCardColorClass(calcResult.statusGizi).title}`}>
+                    <Sparkles className="w-3.5 h-3.5" /> Rekomendasi Analisis AI Medis:
                   </span>
                   <p className="font-medium leading-relaxed">{calcResult.rekomendasiAI}</p>
                 </div>
@@ -342,8 +412,8 @@ export default function PencatatanPage() {
             ) : (
               <div className="py-12 text-center text-muted-foreground space-y-2 text-xs">
                 <Sparkles className="w-8 h-8 mx-auto stroke-1 text-primary animate-pulse" />
-                <p className="font-semibold">Ketikkan Berat & Tinggi Badan balita.</p>
-                <p className="text-[11px] text-muted-foreground">Kalkulasi Z-score WHO & Analisis Medis AI akan otomatis muncul secara instant di sini.</p>
+                <p className="font-semibold text-foreground">Ketikkan Berat & Tinggi Badan balita.</p>
+                <p className="text-[11px] text-muted-foreground">Kalkulasi Z-score WHO & Analisis Medis AI Gemini akan otomatis diproses secara real-time di sini.</p>
               </div>
             )}
           </CardContent>
