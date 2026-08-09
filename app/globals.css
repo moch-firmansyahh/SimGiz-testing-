@@ -48,6 +48,16 @@
 }
 
 @media print {
+  html, body, div, main, article, section {
+    overflow: visible !important;
+    overflow-x: visible !important;
+    overflow-y: visible !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    max-width: none !important;
+  }
+
   html, body {
     background: #ffffff !important;
     color: #000000 !important;
@@ -55,24 +65,37 @@
     padding: 0 !important;
     width: 100% !important;
   }
+
   header, aside, nav, button, .print\:hidden {
     display: none !important;
   }
+
+  div.flex, main {
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+
   .print-document {
     display: block !important;
     width: 100% !important;
     margin: 0 !important;
-    padding: 20px !important;
+    padding: 15px !important;
     box-shadow: none !important;
     border: none !important;
+    background: #ffffff !important;
   }
+
   .print-row, tr {
     break-inside: avoid !important;
     page-break-inside: avoid !important;
   }
+
   thead {
     display: table-header-group !important;
   }
+
   .print-signature {
     break-inside: avoid !important;
     page-break-inside: avoid !important;

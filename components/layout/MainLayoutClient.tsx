@@ -33,11 +33,11 @@ export const MainLayoutClient = ({ children }: { children: React.ReactNode }) =>
   }
 
   return (
-    <div className="flex min-h-screen relative bg-background font-sans">
+    <div className="flex min-h-screen relative bg-background font-sans print:bg-white print:block print:min-h-0 print:h-auto print:static">
       {/* Mobile overlay */}
       {isSidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          className="fixed inset-0 bg-black/50 z-40 md:hidden print:hidden"
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
@@ -46,12 +46,12 @@ export const MainLayoutClient = ({ children }: { children: React.ReactNode }) =>
 
       <div
         className={cn(
-          "flex-1 flex flex-col min-w-0 min-h-screen transition-[margin] duration-300 ease-in-out",
+          "flex-1 flex flex-col min-w-0 min-h-screen transition-[margin] duration-300 ease-in-out print:ml-0 print:p-0 print:m-0 print:block print:min-h-0 print:h-auto",
           isSidebarOpen ? "md:ml-64" : "md:ml-0"
         )}
       >
         <Navbar toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
-        <main className="flex-1 w-full max-w-full p-4 sm:p-6 lg:p-8 overflow-x-hidden">
+        <main className="flex-1 w-full max-w-full p-4 sm:p-6 lg:p-8 overflow-x-hidden print:overflow-visible print:p-0 print:m-0 print:block print:max-w-none print:w-full">
           {children}
         </main>
       </div>
