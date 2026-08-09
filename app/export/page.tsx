@@ -12,6 +12,8 @@ export default function ExportPage() {
   const [childrenList, setChildrenList] = useState<ChildRecord[]>([]);
   const [metrics, setMetrics] = useState<SummaryMetric | null>(null);
   const [loading, setLoading] = useState(true);
+  const [currentDateFormatted, setCurrentDateFormatted] = useState<string>("");
+  const [currentMonthYearFormatted, setCurrentMonthYearFormatted] = useState<string>("");
 
   const fetchData = async () => {
     try {
@@ -33,6 +35,20 @@ export default function ExportPage() {
 
   useEffect(() => {
     fetchData();
+
+    // Generate real-time dynamic dates
+    const now = new Date();
+    const formattedDate = now.toLocaleDateString("id-ID", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+    const formattedMonthYear = now.toLocaleDateString("id-ID", {
+      month: "long",
+      year: "numeric",
+    });
+    setCurrentDateFormatted(formattedDate);
+    setCurrentMonthYearFormatted(formattedMonthYear);
   }, []);
 
   const handlePrint = () => {
@@ -72,7 +88,7 @@ export default function ExportPage() {
             {currentWorker.posyandu} • {currentWorker.kelurahan}
           </p>
           <p className="text-xs text-slate-500 mt-0.5">
-            Periode: Agustus 2026 • Petugas: {currentWorker.nama} (NIP: {currentWorker.nip})
+            Periode: {currentMonthYearFormatted || "Agustus 2026"} • Petugas: {currentWorker.nama} (NIP: {currentWorker.nip})
           </p>
         </div>
 
@@ -122,25 +138,37 @@ export default function ExportPage() {
           </table>
         )}
 
-        {/* Official Indonesian Government / Posyandu Signature Format */}
+        {/* 100% Perfectly Aligned & Parallel Indonesian Government Signature Block */}
         <div 
-          className="print-signature flex justify-between items-start pt-10 text-xs text-slate-900 mt-10"
+          className="print-signature grid grid-cols-2 gap-8 text-xs text-slate-900 mt-10 pt-4"
           style={{ breakInside: "avoid", pageBreakInside: "avoid" }}
         >
-          <div className="print-signature-box text-left">
-            <p className="font-medium">Mengetahui,</p>
-            <p className="font-bold mt-0.5 text-slate-900">Kepala Puskesmas Pembantu</p>
-            <div className="sig-space h-20 my-2" style={{ height: "80px", minHeight: "80px" }} />
-            <p className="font-extrabold underline text-slate-900">dr. Anita Rahayu, M.Kes</p>
-            <p className="text-slate-600 font-medium mt-0.5">NIP. 19790211 200801 2 009</p>
+          {/* Left Officer Block */}
+          <div className="print-signature-box text-left flex flex-col justify-between">
+            <div>
+              <p className="font-medium leading-tight h-5">Mengetahui,</p>
+              <p className="font-bold text-slate-900 leading-tight">Kepala Puskesmas Pembantu</p>
+            </div>
+            <div className="sig-space my-2" style={{ height: "75px", minHeight: "75px" }} />
+            <div>
+              <p className="font-extrabold underline text-slate-900">dr. Anita Rahayu, M.Kes</p>
+              <p className="text-slate-600 font-medium mt-0.5">NIP. 19790211 200801 2 009</p>
+            </div>
           </div>
 
-          <div className="print-signature-box text-right">
-            <p className="font-medium">Jakarta, 07 Agustus 2026</p>
-            <p className="font-bold mt-0.5 text-slate-900">Petugas Kesehatan Posyandu</p>
-            <div className="sig-space h-20 my-2" style={{ height: "80px", minHeight: "80px" }} />
-            <p className="font-extrabold underline text-slate-900">{currentWorker.nama}</p>
-            <p className="text-slate-600 font-medium mt-0.5">NIP. {currentWorker.nip}</p>
+          {/* Right Officer Block */}
+          <div className="print-signature-box text-right flex flex-col justify-between">
+            <div>
+              <p className="font-medium leading-tight h-5">
+                Jakarta, {currentDateFormatted || "09 Agustus 2026"}
+              </p>
+              <p className="font-bold text-slate-900 leading-tight">Petugas Kesehatan Posyandu</p>
+            </div>
+            <div className="sig-space my-2" style={{ height: "75px", minHeight: "75px" }} />
+            <div>
+              <p className="font-extrabold underline text-slate-900">{currentWorker.nama}</p>
+              <p className="text-slate-600 font-medium mt-0.5">NIP. {currentWorker.nip}</p>
+            </div>
           </div>
         </div>
       </div>
