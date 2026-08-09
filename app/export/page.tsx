@@ -122,25 +122,25 @@ export default function ExportPage() {
           </table>
         )}
 
-        {/* Signature section wrapped to prevent page break splitting */}
+        {/* Official Indonesian Government / Posyandu Signature Format */}
         <div 
-          className="print-signature flex justify-between items-end pt-8 text-xs text-slate-900"
+          className="print-signature flex justify-between items-start pt-10 text-xs text-slate-900 mt-10"
           style={{ breakInside: "avoid", pageBreakInside: "avoid" }}
         >
-          <div className="print-signature-box">
-            <p>Mengetahui,</p>
-            <p className="font-bold mt-1">Kepala Puskesmas Pembantu</p>
-            <div className="h-16" />
-            <p className="font-bold underline">dr. Anita Rahayu, M.Kes</p>
-            <p className="text-slate-500">NIP. 19790211 200801 2 009</p>
+          <div className="print-signature-box text-left">
+            <p className="font-medium">Mengetahui,</p>
+            <p className="font-bold mt-0.5 text-slate-900">Kepala Puskesmas Pembantu</p>
+            <div className="sig-space h-20 my-2" style={{ height: "80px", minHeight: "80px" }} />
+            <p className="font-extrabold underline text-slate-900">dr. Anita Rahayu, M.Kes</p>
+            <p className="text-slate-600 font-medium mt-0.5">NIP. 19790211 200801 2 009</p>
           </div>
 
           <div className="print-signature-box text-right">
-            <p>Jakarta, 07 Agustus 2026</p>
-            <p className="font-bold mt-1">Petugas Kesehatan Posyandu</p>
-            <div className="h-16" />
-            <p className="font-bold underline">{currentWorker.nama}</p>
-            <p className="text-slate-500">NIP. {currentWorker.nip}</p>
+            <p className="font-medium">Jakarta, 07 Agustus 2026</p>
+            <p className="font-bold mt-0.5 text-slate-900">Petugas Kesehatan Posyandu</p>
+            <div className="sig-space h-20 my-2" style={{ height: "80px", minHeight: "80px" }} />
+            <p className="font-extrabold underline text-slate-900">{currentWorker.nama}</p>
+            <p className="text-slate-600 font-medium mt-0.5">NIP. {currentWorker.nip}</p>
           </div>
         </div>
       </div>
