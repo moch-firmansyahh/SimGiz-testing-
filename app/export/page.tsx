@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { currentWorker } from "@/lib/dummy-data";
+import { currentWorker } from "@/lib/petugas-config";
 import { FileSpreadsheet, Printer } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -77,10 +77,10 @@ export default function ExportPage() {
         </div>
 
         <div className="grid grid-cols-4 gap-4 p-4 bg-slate-50 rounded-xl border border-slate-200 mb-6 text-center text-xs">
-          <div><span className="text-slate-500 block font-medium">Total Anak</span><span className="text-base font-extrabold text-slate-900">{metrics?.totalAnak || 148} Anak</span></div>
+          <div><span className="text-slate-500 block font-medium">Total Anak</span><span className="text-base font-extrabold text-slate-900">{metrics?.totalAnak || 36} Anak</span></div>
           <div><span className="text-slate-500 block font-medium">Anak Berisiko</span><span className="text-base font-extrabold text-rose-600">{metrics?.anakBerisiko || 16} Anak</span></div>
-          <div><span className="text-slate-500 block font-medium">Pemeriksaan</span><span className="text-base font-extrabold text-slate-900">{metrics?.pemeriksaanBulanIni || 42} Sesi</span></div>
-          <div><span className="text-slate-500 block font-medium">Status Normal</span><span className="text-base font-extrabold text-emerald-600">{metrics?.persentaseNormal || 89.2}%</span></div>
+          <div><span className="text-slate-500 block font-medium">Pemeriksaan</span><span className="text-base font-extrabold text-slate-900">{metrics?.pemeriksaanBulanIni || 36} Sesi</span></div>
+          <div><span className="text-slate-500 block font-medium">Status Normal</span><span className="text-base font-extrabold text-emerald-600">{metrics?.persentaseNormal || 55.6}%</span></div>
         </div>
 
         {loading ? (
@@ -90,40 +90,44 @@ export default function ExportPage() {
             <Skeleton className="h-6 w-full" />
           </div>
         ) : (
-          <table className="w-full text-left text-xs border-collapse mb-6">
+          <table className="w-full text-left text-xs border-collapse mb-6 print-table">
             <thead>
               <tr className="bg-slate-100 border-y border-slate-300 font-bold text-slate-900">
-                <th className="p-2.5">No</th>
+                <th className="p-2.5 whitespace-nowrap">No</th>
                 <th className="p-2.5">Nama Anak</th>
-                <th className="p-2.5">Usia</th>
-                <th className="p-2.5">JK</th>
+                <th className="p-2.5 whitespace-nowrap">Usia</th>
+                <th className="p-2.5 whitespace-nowrap">JK</th>
                 <th className="p-2.5">Orang Tua</th>
-                <th className="p-2.5">BB (kg)</th>
-                <th className="p-2.5">TB (cm)</th>
-                <th className="p-2.5">Z-Score TB/U</th>
-                <th className="p-2.5">Status Gizi</th>
+                <th className="p-2.5 whitespace-nowrap">BB (kg)</th>
+                <th className="p-2.5 whitespace-nowrap">TB (cm)</th>
+                <th className="p-2.5 whitespace-nowrap">Z-Score TB/U</th>
+                <th className="p-2.5 whitespace-nowrap">Status Gizi</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200">
               {childrenList.map((item, idx) => (
-                <tr key={item.id}>
-                  <td className="p-2.5">{idx + 1}</td>
+                <tr key={item.id} className="print-row">
+                  <td className="p-2.5 whitespace-nowrap">{idx + 1}</td>
                   <td className="p-2.5 font-bold text-slate-900">{item.nama}</td>
-                  <td className="p-2.5">{item.usiaBulan} bln</td>
-                  <td className="p-2.5">{item.jenisKelamin}</td>
+                  <td className="p-2.5 whitespace-nowrap">{item.usiaBulan} bln</td>
+                  <td className="p-2.5 whitespace-nowrap">{item.jenisKelamin}</td>
                   <td className="p-2.5">{item.namaOrangTua}</td>
-                  <td className="p-2.5">{item.beratBadan}</td>
-                  <td className="p-2.5">{item.tinggiBadan}</td>
-                  <td className="p-2.5 font-semibold">{item.zScoreTB_U} SD</td>
-                  <td className="p-2.5 font-bold">{item.statusGizi}</td>
+                  <td className="p-2.5 whitespace-nowrap">{item.beratBadan}</td>
+                  <td className="p-2.5 whitespace-nowrap">{item.tinggiBadan}</td>
+                  <td className="p-2.5 font-semibold whitespace-nowrap">{item.zScoreTB_U} SD</td>
+                  <td className="p-2.5 font-bold whitespace-nowrap">{item.statusGizi}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         )}
 
-        <div className="flex justify-between items-end pt-8 text-xs text-slate-900">
-          <div>
+        {/* Signature section wrapped to prevent page break splitting */}
+        <div 
+          className="print-signature flex justify-between items-end pt-8 text-xs text-slate-900"
+          style={{ breakInside: "avoid", pageBreakInside: "avoid" }}
+        >
+          <div className="print-signature-box">
             <p>Mengetahui,</p>
             <p className="font-bold mt-1">Kepala Puskesmas Pembantu</p>
             <div className="h-16" />
@@ -131,7 +135,7 @@ export default function ExportPage() {
             <p className="text-slate-500">NIP. 19790211 200801 2 009</p>
           </div>
 
-          <div className="text-right">
+          <div className="print-signature-box text-right">
             <p>Jakarta, 07 Agustus 2026</p>
             <p className="font-bold mt-1">Petugas Kesehatan Posyandu</p>
             <div className="h-16" />

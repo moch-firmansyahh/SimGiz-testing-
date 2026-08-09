@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { currentWorker } from "@/lib/dummy-data";
+import { currentWorker } from "@/lib/petugas-config";
 import { Menu, LogOut, Building2, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { usePathname, useRouter } from "next/navigation";
