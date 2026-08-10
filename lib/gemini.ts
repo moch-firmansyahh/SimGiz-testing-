@@ -35,11 +35,11 @@ Pedoman Diagnostik Klinis Resmi (Kemenkes RI & WHO):
 5. Jika Gizi Kurang (< -2 SD): Defisit energi kronis. Berikan suplemen Zink 10-20 mg/hari selama 14 hari, PMT Berbasis Pangan Lokal tinggi protein hewani.
 6. Jika Normal (-2 SD s/d +2 SD): Pertahankan pola Isi Piringku Balita, ASI Eksklusif/MPASI kaya zat besi, dan penimbangan rutin bulanan.
 
-Tuliskan analisis medis dalam 2-3 kalimat yang sangat spesisi, mengutip angka Z-score balita ini (${zScoreBB_U} SD / ${zScoreTB_U} SD), dan memberikan rekomendasi tindakan klinis langsung.`;
+Tuliskan analisis medis dalam 2-3 kalimat yang sangat spesifik, mengutip angka Z-score balita ini (${zScoreBB_U} SD / ${zScoreTB_U} SD), dan memberikan rekomendasi tindakan klinis langsung.`;
 
     const candidateModels = [
       "gemini-2.0-flash",
-      "gemini-2.5-flash-lite",
+      "gemini-1.5-flash",
       "gemini-2.0-flash-lite",
       "gemini-1.5-pro",
     ];
