@@ -1,15 +1,24 @@
 import { ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
+/**
+ * Merges Tailwind CSS classes with clsx conditionals.
+ */
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+/**
+ * Formats a numeric Z-Score value into a formatted string with explicit plus sign for positive values.
+ */
 export function formatZScore(value: number): string {
   if (value > 0) return `+${value.toFixed(2)} SD`;
   return `${value.toFixed(2)} SD`;
 }
 
+/**
+ * Returns corresponding Tailwind badge styling classes based on nutritional status.
+ */
 export function getStatusBadgeClass(status: string) {
   switch (status.toLowerCase()) {
     case "gizi baik (normal)":
