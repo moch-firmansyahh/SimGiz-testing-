@@ -1,3 +1,9 @@
+import { formatZScore } from "@/lib/utils";
+
+/**
+ * Generates clinical AI recommendations for child nutritional assessments.
+ * Uses Google Gemini API with multi-model fallback, or parameter-driven local engine if offline/rate-limited.
+ */
 export async function generateAIRecommendation({
   nama,
   usiaBulan,
@@ -24,7 +30,7 @@ export async function generateAIRecommendation({
     const prompt = `Anda adalah Dokter Spesialis Anak & Konsultan Utama Gizi Kemenkes RI. Berikan analisis klinis medis real-time yang 100% patuh pada Keputusan Menteri Kesehatan RI No. 2/2020 & Pedoman WHO Management of Malnutrition untuk balita berikut:
 - Nama: ${nameLabel} (${usiaBulan} Bulan)
 - Pengukuran Fisik: BB ${beratBadan} kg, TB ${tinggiBadan} cm
-- Z-Score BB/U: ${zScoreBB_U} SD | Z-Score TB/U: ${zScoreTB_U} SD | Z-Score BB/TB: ${zScoreBB_TB} SD
+- Z-Score BB/U: ${formatZScore(zScoreBB_U)} | Z-Score TB/U: ${formatZScore(zScoreTB_U)} | Z-Score BB/TB: ${formatZScore(zScoreBB_TB)}
 - Diagnosa Status Gizi: ${statusGizi}
 
 Pedoman Diagnostik Klinis Resmi (Kemenkes RI & WHO):
@@ -35,7 +41,7 @@ Pedoman Diagnostik Klinis Resmi (Kemenkes RI & WHO):
 5. Jika Gizi Kurang (< -2 SD): Defisit energi kronis. Berikan suplemen Zink 10-20 mg/hari selama 14 hari, PMT Berbasis Pangan Lokal tinggi protein hewani.
 6. Jika Normal (-2 SD s/d +2 SD): Pertahankan pola Isi Piringku Balita, ASI Eksklusif/MPASI kaya zat besi, dan penimbangan rutin bulanan.
 
-Tuliskan analisis medis dalam 2-3 kalimat yang sangat spesifik, mengutip angka Z-score balita ini (${zScoreBB_U} SD / ${zScoreTB_U} SD), dan memberikan rekomendasi tindakan klinis langsung.`;
+Tuliskan analisis medis dalam 2-3 kalimat yang sangat spesifik, mengutip angka Z-score balita ini (${formatZScore(zScoreBB_U)} / ${formatZScore(zScoreTB_U)}), dan memberikan rekomendasi tindakan klinis langsung.`;
 
     const candidateModels = [
       "gemini-2.0-flash",
@@ -72,16 +78,16 @@ Tuliskan analisis medis dalam 2-3 kalimat yang sangat spesifik, mengutip angka Z
 
   // Parameter-driven dynamic clinical analysis engine (for fallback when rate-limited)
   if (statusGizi === "Obesitas") {
-    return `[ANALISIS MEDIS KEMENKES RI & WHO] Pasien ${nameLabel} (${usiaBulan} Bulan) terindikasi Obesitas Berat dengan Z-Score BB/TB +${zScoreBB_TB} SD (BB ${beratBadan} kg pada TB ${tinggiBadan} cm). Berisiko tinggi terhadap sindrom metabolik dan gangguan kardiovaskular dini. Segera rujuk ke Dokter Spesialis Anak untuk resep evaluasi diet klinis & restrukturisasi asupan kalori murni tanpa mengganggu tumbuh kembang.`;
+    return `[ANALISIS MEDIS KEMENKES RI & WHO] Pasien ${nameLabel} (${usiaBulan} Bulan) terindikasi Obesitas Berat dengan Z-Score BB/TB ${formatZScore(zScoreBB_TB)} (BB ${beratBadan} kg pada TB ${tinggiBadan} cm). Berisiko tinggi terhadap sindrom metabolik dan gangguan kardiovaskular dini. Segera rujuk ke Dokter Spesialis Anak untuk resep evaluasi diet klinis & restrukturisasi asupan kalori murni tanpa mengganggu tumbuh kembang.`;
   } else if (statusGizi === "Gizi Lebih") {
-    return `[ANALISIS MEDIS KEMENKES RI & WHO] Pasien ${nameLabel} (${usiaBulan} Bulan) terindikasi Gizi Lebih (Overweight) dengan Z-Score BB/U +${zScoreBB_U} SD. Disarankan penghentian konsumsi makanan tinggi gula/soda, meningkatkan aktivitas fisik harian balita, serta mengganti camilan olahan dengan protein hewani & serat buah utuh.`;
+    return `[ANALISIS MEDIS KEMENKES RI & WHO] Pasien ${nameLabel} (${usiaBulan} Bulan) terindikasi Gizi Lebih (Overweight) dengan Z-Score BB/U ${formatZScore(zScoreBB_U)}. Disarankan penghentian konsumsi makanan tinggi gula/soda, meningkatkan aktivitas fisik harian balita, serta mengganti camilan olahan dengan protein hewani & serat buah utuh.`;
   } else if (statusGizi === "Stunting") {
-    return `[ANALISIS MEDIS KEMENKES RI & WHO] Pasien ${nameLabel} (${usiaBulan} Bulan) terindikasi Stunting (TB/U ${zScoreTB_U} SD, TB ${tinggiBadan} cm). Berisiko tinggi terhadap hambatan kognitif permanen. Segera lakukan rujukan ke Puskesmas/Spesialis Anak untuk skrining TBC/ISK/Cacingan dan resepkan PMT Pemulihan tinggi Protein Hewani (telur, ikan, susu PKMK).`;
+    return `[ANALISIS MEDIS KEMENKES RI & WHO] Pasien ${nameLabel} (${usiaBulan} Bulan) terindikasi Stunting (TB/U ${formatZScore(zScoreTB_U)}, TB ${tinggiBadan} cm). Berisiko tinggi terhadap hambatan kognitif permanen. Segera lakukan rujukan ke Puskesmas/Spesialis Anak untuk skrining TBC/ISK/Cacingan dan resepkan PMT Pemulihan tinggi Protein Hewani (telur, ikan, susu PKMK).`;
   } else if (statusGizi === "Gizi Buruk") {
-    return `[ANALISIS MEDIS KEMENKES RI & WHO] Pasien ${nameLabel} (${usiaBulan} Bulan) terindikasi Gizi Buruk Akut (BB/TB ${zScoreBB_TB} SD). Lakukan rujukan darurat ke TFC/Puskesmas Rawat Inap untuk penanganan Protokol 10 Langkah Gizi Buruk (Fase Stabilisasi F-75 & F-100).`;
+    return `[ANALISIS MEDIS KEMENKES RI & WHO] Pasien ${nameLabel} (${usiaBulan} Bulan) terindikasi Gizi Buruk Akut (BB/TB ${formatZScore(zScoreBB_TB)}). Lakukan rujukan darurat ke TFC/Puskesmas Rawat Inap untuk penanganan Protokol 10 Langkah Gizi Buruk (Fase Stabilisasi F-75 & F-100).`;
   } else if (statusGizi === "Gizi Kurang") {
-    return `[ANALISIS MEDIS KEMENKES RI & WHO] Pasien ${nameLabel} (${usiaBulan} Bulan) terindikasi Gizi Kurang (Z-Score BB/U ${zScoreBB_U} SD). Berikan suplemen Zink 10-20 mg/hari selama 14 hari, tingkatkan asupan PMT Lokal kaya protein hewani, dan lakukan pemantauan berat badan per 2 minggu.`;
+    return `[ANALISIS MEDIS KEMENKES RI & WHO] Pasien ${nameLabel} (${usiaBulan} Bulan) terindikasi Gizi Kurang (Z-Score BB/U ${formatZScore(zScoreBB_U)}). Berikan suplemen Zink 10-20 mg/hari selama 14 hari, tingkatkan asupan PMT Lokal kaya protein hewani, dan lakukan pemantauan berat badan per 2 minggu.`;
   }
 
-  return `[ANALISIS MEDIS KEMENKES RI & WHO] Pasien ${nameLabel} (${usiaBulan} Bulan) dalam Status Gizi Normal (Z-Score BB/U ${zScoreBB_U} SD, TB/U ${zScoreTB_U} SD). Pertahankan pola konsumsi Isi Piringku Balita, pastikan asupan ASI/MPASI kaya zat besi, dan lanjutkan penimbangan rutin bulanan di Posyandu.`;
+  return `[ANALISIS MEDIS KEMENKES RI & WHO] Pasien ${nameLabel} (${usiaBulan} Bulan) dalam Status Gizi Normal (Z-Score BB/U ${formatZScore(zScoreBB_U)}, TB/U ${formatZScore(zScoreTB_U)}). Pertahankan pola konsumsi Isi Piringku Balita, pastikan asupan ASI/MPASI kaya zat besi, dan lanjutkan penimbangan rutin bulanan di Posyandu.`;
 }
