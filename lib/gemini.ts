@@ -1,8 +1,18 @@
 import { formatZScore } from "@/lib/utils";
 
 /**
+ * @module gemini
+ * @description AI-powered clinical nutrition recommendation engine for SimGizi.
+ * Integrates with Google Gemini API to provide evidence-based nutritional assessments
+ * following Kemenkes RI & WHO guidelines.
+ * @lastUpdated 2026-08-13
+ */
+
+/**
  * Generates clinical AI recommendations for child nutritional assessments.
- * Uses Google Gemini API with multi-model fallback, or parameter-driven local engine if offline/rate-limited.
+ * Uses Google Gemini API with multi-model fallback (gemini-2.0-flash → gemini-1.5-flash
+ * → gemini-2.0-flash-lite → gemini-1.5-pro), or falls back to a parameter-driven
+ * local clinical analysis engine if the API is unavailable or rate-limited.
  */
 export async function generateAIRecommendation({
   nama,
